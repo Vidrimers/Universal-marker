@@ -640,6 +640,17 @@
             }
             .vm-footer .vm-btn { flex: 1; min-width: 120px; text-align: center; padding: 3px 5px;}
 
+            .vm-donate-link {
+                color: #888;
+                font-size: 12px;
+                text-decoration: none;
+                transition: color 0.2s;
+            }
+            .vm-donate-link:hover {
+                color: #ccc;
+                text-decoration: underline;
+            }
+
             /* ===== Help ===== */
             .vm-help { font-size: 13px; line-height: 1.7; color: #ccc; }
             .vm-help h3 { color: #fff; margin: 0 0 12px; font-size: 15px; }
@@ -1075,6 +1086,9 @@
                 <button class="vm-btn vm-btn-success" id="vmExportAll">📥 Экспорт всего</button>
                 <button class="vm-btn vm-btn-warning" id="vmImportAll">📤 Импорт всего</button>
                 <button class="vm-btn vm-btn-report" id="vmReport">🐛 Багрепорт</button>
+            </div>
+            <div style="margin-top:10px;text-align:center;">
+                <a class="vm-donate-link" href="https://vidrimers.site/donate" target="_blank" rel="noopener">Поддержать проект</a>
             </div>
         `;
     shadow.appendChild(modal);
