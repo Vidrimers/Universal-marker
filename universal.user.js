@@ -627,9 +627,26 @@
             }
 
             /* ===== Close btn ===== */
-            .vm-close {
+            .vm-head-actions {
                 position: absolute;
+                top: 5px;
                 right: 10px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .vm-head-btn {
+                background: none;
+                border: none;
+                color: #666;
+                font-size: 16px;
+                cursor: pointer;
+                transition: color 0.2s;
+                line-height: 1;
+                padding: 0;
+            }
+            .vm-head-btn:hover { color: #fff; }
+            .vm-close {
                 background: none;
                 border: none;
                 color: #666;
@@ -961,7 +978,11 @@
     <button id="vmUpdateBtn" class="vm-update-btn">Обновить</button>
   </div>
             <div class="vm-header">
-                <button class="vm-close">&times;</button>
+                <div class="vm-head-actions">
+                    <button class="vm-head-btn" id="vmRefresh" title="Обновить">🔄</button>
+                    <button class="vm-head-btn" id="vmReport" title="Багрепорт">🐛</button>
+                    <button class="vm-close">&times;</button>
+                </div>
                 <h2>💀 Universal Marker <span class="vm-domain">${escapeHtml(DOMAIN)}</span></h2>
             </div>
 
@@ -1073,6 +1094,13 @@
                     <span class="vm-setting-label">Версия скрипта: <strong style="color:#a3b1ff;" id="vmCurrentVersion"></strong></span>
                     <button class="vm-btn vm-btn-ghost" id="vmCheckUpdate" style="font-size:11px;padding:4px 10px;">🔍 Проверить обновления</button>
                 </div>
+                <div class="vm-setting-row" style="border-bottom:none;margin-top:14px;">
+                    <span class="vm-setting-label">Экспорт / Импорт</span>
+                    <div style="display:flex;gap:6px;">
+                        <button class="vm-btn vm-btn-success" id="vmExportAll">📥 Экспорт</button>
+                        <button class="vm-btn vm-btn-warning" id="vmImportAll">📤 Импорт</button>
+                    </div>
+                </div>
             </div>
 
             <div class="vm-tab-content" data-tab="help">
@@ -1085,19 +1113,11 @@
                     <p style="margin-top:12px;"><strong style="color:#a3b1ff;">⚙️ Паттерны URL</strong> — regex для извлечения ID.<br>
                     Если в паттерне несколько групп — берётся последняя.<br>
                     Для plati.market: <code style="background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:4px;">/seller/[^/]+/(\d+)</code></p>
-                    <p style="margin-top:12px;"><strong style="color:#a3b1ff;">📥📤 Экспорт/Импорт</strong> — данные хранятся отдельно для каждого сайта.</p>
+                    <p style="margin-top:12px;"><strong style="color:#a3b1ff;">📥📤 Экспорт/Импорт</strong> — бэкап всех сайтов одним файлом.</p>
                     <p style="margin-top:8px;color:#666;font-size:11px;">Данные в Tampermonkey (GM_storage), не пропадут при очистке кук.</p>
                 </div>
             </div>
 
-            <div class="vm-footer">
-                <button class="vm-btn vm-btn-ghost" id="vmRefresh">🔄 Обновить</button>
-            </div>
-            <div class="vm-footer" style="margin-top:8px;">
-                <button class="vm-btn vm-btn-success" id="vmExportAll">📥 Экспорт</button>
-                <button class="vm-btn vm-btn-warning" id="vmImportAll">📤 Импорт</button>
-                <button class="vm-btn vm-btn-report" id="vmReport">🐛 Багрепорт</button>
-            </div>
             <div style="margin-top:10px;text-align:center;">
                 <a class="vm-donate-link" href="https://vidrimers.site/donate" target="_blank" rel="noopener">Поддержать проект</a>
             </div>
@@ -1169,7 +1189,7 @@
 
       bar.addEventListener("pointerdown", (e) => {
         // не тащить по кнопкам внутри заголовка
-        if (e.target.closest(".vm-close")) return;
+        if (e.target.closest(".vm-head-btn, .vm-close")) return;
         dragging = true;
         startX = e.clientX;
         startY = e.clientY;
