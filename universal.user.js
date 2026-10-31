@@ -5,6 +5,8 @@
 // @description  Universal nickname highlighting + profile messages. Works on any site. / Универсальная подсветка ников + надписи на профилях.
 // @author       Vidrimers
 // @license      CC BY-NC-ND 4.0
+// @homepageURL  https://github.com/Vidrimers/Universal-marker
+// @supportURL   https://github.com/Vidrimers/Universal-marker/issues
 // @match        *://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
