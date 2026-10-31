@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         Universal Marker
 // @namespace    https://github.com/Vidrimers/Universal-marker
-// @version      6.7.0
+// @version      6.7.1
 // @description  Universal nickname highlighting + profile messages. Works on any site. / Универсальная подсветка ников + надписи на профилях.
 // @author       Vidrimers
+// @license      CC BY-NC-ND 4.0
 // @match        *://*/*
 // @grant        GM_setValue
 // @grant        GM_getValue
@@ -379,6 +380,15 @@
       "help.exportP": '<p style="margin-top:12px;"><strong style="color:#a3b1ff;">📥📤 Export/Import</strong> — backup of all sites in one file.</p>',
       "help.storageP": '<p style="margin-top:8px;color:#666;font-size:11px;">Data is stored in Tampermonkey (GM_storage), it survives cookie clears.</p>',
       "donate": "Support the project",
+      "ui.license": "License",
+      "ui.ok": "OK",
+      "lic.title": "License",
+      "lic.free": "✅ Use for free",
+      "lic.share": "✅ Share with attribution",
+      "lic.commercial": "❌ Commercial use",
+      "lic.derivatives": "❌ Modifications and derivatives",
+      "lic.commercialNote": "For commercial use, contact the author to obtain a license.",
+      "lic.full": "Full text",
       "toast.needProfileLabel": "Enter a profile label",
       "toast.profileUpdated": "Profile updated",
       "toast.profileAdded": "Profile added",
@@ -468,6 +478,15 @@
       "help.exportP": '<p style="margin-top:12px;"><strong style="color:#a3b1ff;">📥📤 Экспорт/Импорт</strong> — бэкап всех сайтов одним файлом.</p>',
       "help.storageP": '<p style="margin-top:8px;color:#666;font-size:11px;">Данные в Tampermonkey (GM_storage), не пропадут при очистке кук.</p>',
       "donate": "Поддержать проект",
+      "ui.license": "Лицензия",
+      "ui.ok": "ОК",
+      "lic.title": "Лицензия",
+      "lic.free": "✅ Использовать бесплатно",
+      "lic.share": "✅ Делиться с указанием автора",
+      "lic.commercial": "❌ Коммерческое использование",
+      "lic.derivatives": "❌ Переделки и производные",
+      "lic.commercialNote": "Для коммерческого использования свяжитесь с автором для получения лицензии.",
+      "lic.full": "Полный текст",
       "toast.needProfileLabel": "Укажи метку для профиля",
       "toast.profileUpdated": "Профиль обновлён",
       "toast.profileAdded": "Профиль добавлен",
@@ -1354,6 +1373,8 @@
 
             <div style="margin-top:10px;text-align:center;">
                 <a class="vm-donate-link" href="https://vidrimers.online/donate" target="_blank" rel="noopener">${t("donate")}</a>
+                <span style="opacity:0.4;margin:0 6px">·</span>
+                <a class="vm-donate-link" id="vmLicenseLink" href="#" style="cursor:pointer">${t("ui.license")}</a>
             </div>
         `;
     shadow.appendChild(modal);
@@ -1698,7 +1719,7 @@
     })();
 
     // ========== ПРОВЕРКА ОБНОВЛЕНИЙ ==========
-    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.7.0"; // берётся из @version шапки
+    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.7.1"; // берётся из @version шапки
     const UPDATE_URL =
       "https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js";
     const INSTALL_URL =
@@ -2316,12 +2337,53 @@
     // Refresh
     modal.querySelector("#vmRefresh").onclick = () => location.reload();
 
+    // ========== LICENSE (модалка) ==========
+    function showLicense() {
+      const overlay = document.createElement("div");
+      overlay.style.cssText =
+        "position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;pointer-events:auto;";
+      overlay.innerHTML = `
+        <div style="width:380px;max-width:90vw;background:linear-gradient(160deg,#1a1a2e,#16213e);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:20px;color:#e0e0e0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:13px;line-height:1.55;box-shadow:0 24px 80px rgba(0,0,0,0.6);">
+          <div style="font-size:15px;font-weight:700;color:#fff;margin:0 0 10px;">${t("lic.title")}</div>
+          <p style="margin:0 0 10px">
+            <strong>CC BY-NC-ND 4.0</strong><br/>
+            Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
+          </p>
+          <div style="margin:0 0 10px;font-size:12px">
+            <div style="margin:3px 0">${t("lic.free")}</div>
+            <div style="margin:3px 0">${t("lic.share")}</div>
+            <div style="margin:3px 0">${t("lic.commercial")}</div>
+            <div style="margin:3px 0">${t("lic.derivatives")}</div>
+          </div>
+          <p style="margin:0 0 14px;font-size:11px;color:#888">
+            ${t("lic.commercialNote")}
+          </p>
+          <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <button class="vm-btn vm-btn-ghost" data-license="full">${t("lic.full")}</button>
+            <button class="vm-btn vm-btn-primary" data-license="close">${t("ui.ok")}</button>
+          </div>
+        </div>`;
+      shadow.appendChild(overlay);
+      const close = () => overlay.remove();
+      overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+      overlay.querySelector('[data-license="close"]').addEventListener("click", close);
+      overlay.querySelector('[data-license="full"]').addEventListener("click", () => {
+        window.open("https://github.com/Vidrimers/Universal-marker/blob/master/LICENSE", "_blank");
+      });
+    }
+
     // Bug report
     modal.querySelector("#vmReport").onclick = () =>
       window.open(
         "https://github.com/Vidrimers/Universal-marker/issues/new?assignees=&labels=bug%2C+needs+triage%2C+universal-marker&template=bug_report.md&title=%5BBUG%5D+%3Cкраткое+описание+проблемы%3E",
         "_blank",
       );
+
+    // License
+    modal.querySelector("#vmLicenseLink").onclick = (e) => {
+      e.preventDefault();
+      showLicense();
+    };
 
     // восстановление состояния панели после перезагрузки (для каждого сайта своё)
     if (DATA.settings.uiOpen) openModal();

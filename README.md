@@ -4,7 +4,7 @@
 
 Tampermonkey userscript — highlights nicknames and shows messages on profiles on any site. Essential for forums, marketplaces and any community where you need to remember who is who.
 
-> Version: 6.7.0 | Works on any site (`*://*/*`)
+> Version: 6.7.1 | Works on any site (`*://*/*`)
 
 ---
 
@@ -22,6 +22,7 @@ Tampermonkey userscript — highlights nicknames and shows messages on profiles 
   - [Export and import](#export-and-import)
   - [Updates](#updates)
 - [Data storage](#data-storage)
+- [License](#license)
 
 ---
 
@@ -146,7 +147,7 @@ Example for plati.market: `/seller/[^/]+/(\d+)`
 
 ### Export and import
 
-Data is stored separately for each site. Buttons are in the **⚙️ Settings** tab:
+Export is **one file for all sites at once** (there is no separate per-site export). Each site's data in the file sits under its own `vm_<domain>` key. Buttons are in the **⚙️ Settings** tab:
 
 | Button | Action |
 | ---------------------- | -------------------------------------------- |
@@ -154,7 +155,7 @@ Data is stored separately for each site. Buttons are in the **⚙️ Settings** 
 | 📤 Import | Load data for all sites from a JSON file |
 | 🔍 Check for updates | Check GitHub for a new script version |
 
-The header buttons: 🔄 reloads the page (apply changes), 🐛 opens the bug report form.
+The header buttons: 🔄 reloads the page (apply changes), 🐛 opens the bug report form. In the footer: **"Support the project"** and **"License"**.
 
 ---
 
@@ -176,20 +177,37 @@ Click **"Install"** — Tampermonkey opens the update dialog.
 
 Data is saved to Tampermonkey storage (`GM_storage`) — it **survives** cookie and browser cache clears. Each site keeps its data separately.
 
-JSON structure on export:
+JSON structure on export (all sites in one file):
 
 ```json
 {
-  "nicknames": {
-    "username": {
-      "label": "toxic",
-      "color": "#ff4444",
-      "note": "rude in every thread"
-    }
-  },
-  "profileMessages": {
-    "123456": "SCAMMER"
-  },
-  "settings": { ... }
+  "vm_example.com": {
+    "nicknames": {
+      "username": {
+        "label": "toxic",
+        "color": "#ff4444",
+        "note": "rude in every thread"
+      }
+    },
+    "profileMessages": {
+      "123456": "SCAMMER"
+    },
+    "settings": { ... }
+  }
 }
 ```
+
+---
+
+## License
+
+**CC BY-NC-ND 4.0** — [Creative Commons Attribution-NonCommercial-NoDerivatives 4.0](https://creativecommons.org/licenses/by-nc-nd/4.0/)
+
+| | |
+|---|---|
+| ✅ Use for free | ✅ |
+| ✅ Share with attribution | ✅ |
+| ❌ Commercial use | ❌ |
+| ❌ Modifications and derivatives | ❌ |
+
+**For commercial use** — contact the author to obtain a license.
