@@ -45,6 +45,7 @@
         userIdPatterns: ["[?&]u=(\\d+)", "/profile/(\\d+)", "/member/(\\d+)"],
         winPos: null,
         fabPos: null,
+        uiOpen: false,
       },
     };
     if (!raw) return def;
@@ -1119,7 +1120,7 @@
             </div>
 
             <div style="margin-top:10px;text-align:center;">
-                <a class="vm-donate-link" href="https://vidrimers.site/donate" target="_blank" rel="noopener">Поддержать проект</a>
+                <a class="vm-donate-link" href="https://vidrimers.online/donate" target="_blank" rel="noopener">Поддержать проект</a>
             </div>
         `;
     shadow.appendChild(modal);
@@ -1328,9 +1329,11 @@
 
     // ========== EVENTS ==========
     fab.onclick = () => {
-      // после перетаскивания клик не открывает панель
+      // после перетаскивания клик не трогает панель
       if (fabDragged) { fabDragged = false; return; }
-      openModal();
+      // тумблер: открыть / закрыть
+      if (modal.classList.contains("open")) closeModal();
+      else openModal();
     };
     modal.querySelector(".vm-close").onclick = () => closeModal();
     // overlay.onclick убран — модалка закрывается только крестиком
@@ -1366,12 +1369,16 @@
     function openModal() {
       overlay.classList.add("open");
       modal.classList.add("open");
+      DATA.settings.uiOpen = true;
+      saveData(DATA);
       renderLists();
       checkForUpdates();
     }
     function closeModal() {
       overlay.classList.remove("open");
       modal.classList.remove("open");
+      DATA.settings.uiOpen = false;
+      saveData(DATA);
     }
 
     // ========== STEAM QUICK ADD ==========
@@ -2076,6 +2083,9 @@
         "https://github.com/Vidrimers/Universal-marker/issues/new?assignees=&labels=bug%2C+needs+triage%2C+universal-marker&template=bug_report.md&title=%5BBUG%5D+%3Cкраткое+описание+проблемы%3E",
         "_blank",
       );
+
+    // восстановление состояния панели после перезагрузки (для каждого сайта своё)
+    if (DATA.settings.uiOpen) openModal();
   }
 
   // ========== ЗАПУСК ==========
