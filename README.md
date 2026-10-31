@@ -4,7 +4,7 @@
 
 Tampermonkey userscript — highlights nicknames and shows messages on profiles on any site. Essential for forums, marketplaces and any community where you need to remember who is who.
 
-> Version: 6.7.1 | Works on any site (`*://*/*`)
+> Version: 6.7.2 | Works on any site (`*://*/*`)
 
 ---
 
@@ -138,7 +138,7 @@ The **⚙️ Settings** tab:
 
 | Parameter | Description |
 | --------------------- | ------------------------------------------- |
-| Language | Interface language (English / Русский) |
+| Language | Interface language (English / Русский), applies to all sites |
 | Nick label color | Default color for new nicknames |
 | Message color (center) | Text color of the big profile message |
 | Border color | Border color of the big message |

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Universal Marker
 // @namespace    https://github.com/Vidrimers/Universal-marker
-// @version      6.7.1
+// @version      6.7.2
 // @description  Universal nickname highlighting + profile messages. Works on any site. / Универсальная подсветка ников + надписи на профилях.
 // @author       Vidrimers
 // @license      CC BY-NC-ND 4.0
@@ -29,6 +29,7 @@
   const STEAM_PROXY = "http://89.124.70.156:3000/api/steam/names";
   const STEAM_NICK_CACHE_KEY = "vm_steam_nick_cache";
   const STEAM_NICK_CACHE_TTL = 24 * 60 * 60 * 1000; // сутки
+  const LANG_PREF_KEY = "lang_pref"; // глобальный язык интерфейса (без vm_ — в экспорт не попадает)
 
   // ========== ХРАНИЛИЩЕ ==========
   function loadData() {
@@ -49,7 +50,7 @@
         winPos: null,
         fabPos: null,
         uiOpen: false,
-        lang: "en",
+        lang: GM_getValue(LANG_PREF_KEY, "en"),
       }
     };
     if (!raw) return def;
@@ -415,7 +416,14 @@
       "toast.imported": "✓ Imported {n} sites! Reload the page.",
       "toast.imported.one": "✓ Imported {n} site! Reload the page.",
       "toast.errorPrefix": "Error: ",
-      "toast.upToDate": "✓ No updates, version is current"
+      "toast.upToDate": "✓ No updates, version is current",
+      "bug.title": "[Bug] <short problem description>",
+      "bug.version": "**Script version:** ",
+      "bug.browser": "**Browser:** ",
+      "bug.steps": "**Steps to reproduce:**",
+      "bug.expected": "**Expected behavior:**",
+      "bug.actual": "**Actual behavior:**",
+      "bug.extra": "**Additional:**"
     },
     ru: {
       "head.refresh": "Обновить",
@@ -516,12 +524,36 @@
       "toast.imported.one": "✓ Импортировано {n} сайт! Обновите страницу.",
       "toast.imported.few": "✓ Импортировано {n} сайта! Обновите страницу.",
       "toast.errorPrefix": "Ошибка: ",
-      "toast.upToDate": "✓ Обновлений нет, версия актуальна"
+      "toast.upToDate": "✓ Обновлений нет, версия актуальна",
+      "bug.title": "[BUG] <краткое описание проблемы>",
+      "bug.version": "**Версия скрипта:** ",
+      "bug.browser": "**Браузер:** ",
+      "bug.steps": "**Шаги воспроизведения:**",
+      "bug.expected": "**Ожидаемое поведение:**",
+      "bug.actual": "**Фактическое поведение:**",
+      "bug.extra": "**Дополнительно:**"
     }
   };
 
   function uiLang() {
-    return DATA.settings && DATA.settings.lang === "ru" ? "ru" : "en";
+    const l = (DATA.settings && DATA.settings.lang) || GM_getValue(LANG_PREF_KEY, "en");
+    return l === "ru" ? "ru" : "en";
+  }
+
+  // Смена языка действует на все сайты сразу (данные хранятся раздельно по vm_<домен>)
+  function applyLangToAllSites(lang) {
+    for (const key of GM_listValues()) {
+      if (!key.startsWith("vm_") || key === STORAGE_KEY) continue;
+      let parsed;
+      try {
+        parsed = JSON.parse(GM_getValue(key, "null"));
+      } catch (e) {
+        continue;
+      }
+      if (!parsed || typeof parsed !== "object" || !parsed.settings) continue;
+      parsed.settings.lang = lang;
+      GM_setValue(key, JSON.stringify(parsed));
+    }
   }
 
   function pluralCat(lang, n) {
@@ -1723,7 +1755,7 @@
     })();
 
     // ========== ПРОВЕРКА ОБНОВЛЕНИЙ ==========
-    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.7.1"; // берётся из @version шапки
+    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.7.2"; // берётся из @version шапки
     const UPDATE_URL =
       "https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js";
     const INSTALL_URL =
@@ -2086,7 +2118,7 @@
         .sort();
       if (!unique.length) {
         list.innerHTML =
-          '<div style="padding:8px 10px;font-size:12px;color:#555;">${t("presets.empty")}</div>';
+          `<div style="padding:8px 10px;font-size:12px;color:#555;">${t("presets.empty")}</div>`;
         return;
       }
       list.innerHTML = unique
@@ -2135,7 +2167,7 @@
         .sort();
       if (!unique.length) {
         list.innerHTML =
-          '<div style="padding:8px 10px;font-size:12px;color:#555;">${t("presets.empty")}</div>';
+          `<div style="padding:8px 10px;font-size:12px;color:#555;">${t("presets.empty")}</div>`;
         return;
       }
       list.innerHTML = unique
@@ -2280,8 +2312,11 @@
     const langSelect = modal.querySelector("#vmLang");
     langSelect.value = uiLang();
     langSelect.onchange = () => {
-      DATA.settings.lang = langSelect.value === "ru" ? "ru" : "en";
+      const lang = langSelect.value === "ru" ? "ru" : "en";
+      DATA.settings.lang = lang;
       saveData(DATA);
+      GM_setValue(LANG_PREF_KEY, lang); // преференс для новых сайтов
+      applyLangToAllSites(lang);
       rebuildUI();
     };
 
@@ -2376,12 +2411,37 @@
       });
     }
 
-    // Bug report
-    modal.querySelector("#vmReport").onclick = () =>
+    // Bug report — тело issue подставляется на языке интерфейса
+    function openBugReport() {
+      const ver =
+        (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) ||
+        CURRENT_VERSION;
+      const body = encodeURIComponent(
+        [
+          t("bug.version") + ver,
+          t("bug.browser"),
+          "",
+          t("bug.steps"),
+          "1. ",
+          "2. ",
+          "",
+          t("bug.expected"),
+          "",
+          t("bug.actual"),
+          "",
+          t("bug.extra"),
+          "- ",
+        ].join("\n"),
+      );
       window.open(
-        "https://github.com/Vidrimers/Universal-marker/issues/new?assignees=&labels=bug%2C+needs+triage%2C+universal-marker&template=bug_report.md&title=%5BBUG%5D+%3Cкраткое+описание+проблемы%3E",
+        "https://github.com/Vidrimers/Universal-marker/issues/new?title=" +
+          encodeURIComponent(t("bug.title")) +
+          "&body=" +
+          body,
         "_blank",
       );
+    }
+    modal.querySelector("#vmReport").onclick = () => openBugReport();
 
     // License
     modal.querySelector("#vmLicenseLink").onclick = (e) => {
