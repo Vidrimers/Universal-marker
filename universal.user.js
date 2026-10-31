@@ -1,7 +1,7 @@
 // ==UserScript==
-// @name         Universal Eblan Marker
-// @namespace    https://github.com/Vidrimers/Universal-eblan-marker
-// @version      6.6.6
+// @name         Universal Marker
+// @namespace    https://github.com/Vidrimers/Universal-marker
+// @version      6.6.7
 // @description  Универсальная подсветка ников + надписи на профилях. Работает на любом сайте.
 // @author       Vidrimers
 // @match        *://*/*
@@ -12,8 +12,8 @@
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @run-at       document-end
-// @updateURL    https://raw.githubusercontent.com/Vidrimers/Universal-eblan-marker/refs/heads/master/universal.user.js
-// @downloadURL  https://raw.githubusercontent.com/Vidrimers/Universal-eblan-marker/refs/heads/master/universal.user.js
+// @updateURL    https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js
+// @downloadURL  https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js
 // ==/UserScript==
 
 (function () {
@@ -43,6 +43,8 @@
         showForever: true,
         autoHideSeconds: 5,
         userIdPatterns: ["[?&]u=(\\d+)", "/profile/(\\d+)", "/member/(\\d+)"],
+        winPos: null,
+        fabPos: null,
       },
     };
     if (!raw) return def;
@@ -397,9 +399,9 @@
             /* ===== Modal ===== */
             .vm-modal {
                 position: fixed;
-                top: 50%;
-                right: 10%;
-                transform: translate(20%, -50%) scale(0.95);
+                left: 0;
+                top: 0;
+                transform: scale(0.95);
                 pointer-events: auto;
                 width: 520px;
                 max-width: 92vw;
@@ -408,7 +410,7 @@
                 background: linear-gradient(160deg, #1a1a2e, #16213e);
                 border: 1px solid rgba(255,255,255,0.08);
                 border-radius: 20px;
-                padding: 28px;
+                padding: 0 10px 15px;
                 z-index: 2147483645;
                 color: #e0e0e0;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -422,18 +424,29 @@
             .vm-modal.open {
                 display: block;
                 opacity: 1;
-                transform: translate(20%, -50%) scale(1);
+                transform: scale(1);
             }
 
+            /* ===== Header (шапка-тайтлбар: drag + липкая) ===== */
+            .vm-header {
+                position: sticky;
+                top: 0;
+                z-index: 2;
+                padding: 5px 28px 0px;
+                cursor: move;
+                user-select: none;
+            }
             .vm-modal h2 {
                 margin: 0 0 20px;
-                font-size: 20px;
+                font-size: 15px;
                 font-weight: 700;
                 color: #fff;
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 gap: 10px;
+                cursor: move;
+                user-select: none;
             }
             .vm-domain {
                 font-size: 12px;
@@ -933,7 +946,7 @@
     const fab = document.createElement("button");
     fab.className = "vm-fab";
     fab.textContent = "💀";
-    fab.title = "Eblan Marker";
+    fab.title = "Universal Marker";
     shadow.appendChild(fab);
 
     // ===== Overlay =====
@@ -949,8 +962,10 @@
     <span id="vmUpdateText"></span>
     <button id="vmUpdateBtn" class="vm-update-btn">Обновить</button>
   </div>
-            <button class="vm-close">&times;</button>
-            <h2>💀 Eblan Marker <span class="vm-domain">${escapeHtml(DOMAIN)}</span></h2>
+            <div class="vm-header">
+                <button class="vm-close">&times;</button>
+                <h2>💀 Universal Marker <span class="vm-domain">${escapeHtml(DOMAIN)}</span></h2>
+            </div>
 
             <div id="vmUpdateBanner" style="display:none;" class="vm-update-banner">
                 <span id="vmUpdateText"></span>
@@ -1093,6 +1108,181 @@
         `;
     shadow.appendChild(modal);
 
+    // ========== DRAG: перетаскивание окна за заголовок ==========
+    function clampWinPos(x, y) {
+      const w = modal.offsetWidth || 520;
+      const h = modal.offsetHeight || 300;
+      const maxX = Math.max(8, window.innerWidth - w - 8);
+      const maxY = Math.max(8, window.innerHeight - h - 8);
+      return {
+        x: Math.min(Math.max(8, x), maxX),
+        y: Math.min(Math.max(8, y), maxY),
+      };
+    }
+
+    function applyWinPos() {
+      const saved = DATA.settings.winPos;
+      let pos;
+      if (saved && saved.xPct != null) {
+        // проценты от размера окна браузера — переживает другой монитор
+        pos = clampWinPos(
+          Math.round((saved.xPct / 100) * window.innerWidth),
+          Math.round((saved.yPct / 100) * window.innerHeight)
+        );
+      } else {
+        pos = clampWinPos(window.innerWidth - 520 - 120, Math.round(window.innerHeight * 0.12));
+      }
+      modal.style.left = pos.x + "px";
+      modal.style.top = pos.y + "px";
+    }
+
+    function saveWinPos() {
+      const x = parseInt(modal.style.left, 10) || 0;
+      const y = parseInt(modal.style.top, 10) || 0;
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      DATA.settings.winPos = { xPct: (x / w) * 100, yPct: (y / h) * 100 };
+      saveData(DATA);
+    }
+
+    function initDrag() {
+      // тянем за шапку-тайтлбар; крестик — только клик
+      const bar = modal.querySelector(".vm-header");
+      if (!bar) return;
+      let dragging = false;
+      let startX = 0;
+      let startY = 0;
+      let origX = 0;
+      let origY = 0;
+
+      const onMove = (e) => {
+        if (!dragging) return;
+        e.preventDefault();
+        const p = clampWinPos(origX + (e.clientX - startX), origY + (e.clientY - startY));
+        modal.style.left = p.x + "px";
+        modal.style.top = p.y + "px";
+      };
+
+      const onUp = () => {
+        if (!dragging) return;
+        dragging = false;
+        saveWinPos();
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+      };
+
+      bar.addEventListener("pointerdown", (e) => {
+        // не тащить по кнопкам внутри заголовка
+        if (e.target.closest(".vm-close")) return;
+        dragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        origX = parseInt(modal.style.left, 10) || modal.offsetLeft || 0;
+        origY = parseInt(modal.style.top, 10) || modal.offsetTop || 0;
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
+      });
+    }
+
+    applyWinPos();
+    initDrag();
+    // при resize окна браузера — поджимаем позиции, чтобы элементы не остались за краем
+    window.addEventListener("resize", () => {
+      if (modal.classList.contains("open")) applyWinPos();
+      applyFabPos();
+    });
+
+    // ========== DRAG: перетаскивание FAB ==========
+    let fabDragged = false; // клик после перетаскивания не открывает панель
+
+    function clampFabPos(x, y) {
+      const w = fab.offsetWidth || 30;
+      const h = fab.offsetHeight || 24;
+      const maxX = Math.max(8, window.innerWidth - w - 8);
+      const maxY = Math.max(8, window.innerHeight - h - 8);
+      return {
+        x: Math.min(Math.max(8, x), maxX),
+        y: Math.min(Math.max(8, y), maxY),
+      };
+    }
+
+    function applyFabPos() {
+      const saved = DATA.settings.fabPos;
+      if (!saved || saved.xPct == null) {
+        // дефолт — левый нижний угол (как в CSS)
+        fab.style.left = "24px";
+        fab.style.top = "auto";
+        fab.style.bottom = "24px";
+        return;
+      }
+      const x = Math.round((saved.xPct / 100) * window.innerWidth);
+      const y = Math.round((saved.yPct / 100) * window.innerHeight);
+      const p = clampFabPos(x, y);
+      fab.style.left = p.x + "px";
+      fab.style.top = p.y + "px";
+      fab.style.bottom = "auto";
+    }
+
+    function saveFabPos() {
+      const x = parseInt(fab.style.left, 10) || 0;
+      const y = parseInt(fab.style.top, 10) || 0;
+      const w = window.innerWidth || 1;
+      const h = window.innerHeight || 1;
+      DATA.settings.fabPos = { xPct: (x / w) * 100, yPct: (y / h) * 100 };
+      saveData(DATA);
+    }
+
+    function initFabDrag() {
+      let dragging = false;
+      let moved = false;
+      let startX = 0;
+      let startY = 0;
+      let origX = 0;
+      let origY = 0;
+
+      const onMove = (e) => {
+        if (!dragging) return;
+        e.preventDefault();
+        const dx = e.clientX - startX;
+        const dy = e.clientY - startY;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+        const p = clampFabPos(origX + dx, origY + dy);
+        fab.style.left = p.x + "px";
+        fab.style.top = p.y + "px";
+        fab.style.bottom = "auto";
+      };
+
+      const onUp = () => {
+        if (!dragging) return;
+        dragging = false;
+        if (moved) {
+          saveFabPos();
+          fabDragged = true;
+          // страховка: если click после перетаскивания не пришёл — сбрасываем флаг
+          setTimeout(() => { fabDragged = false; }, 500);
+        }
+        window.removeEventListener("pointermove", onMove);
+        window.removeEventListener("pointerup", onUp);
+      };
+
+      fab.addEventListener("pointerdown", (e) => {
+        dragging = true;
+        moved = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        origX = parseInt(fab.style.left, 10) || fab.offsetLeft || 24;
+        origY =
+          fab.style.top !== "auto" && fab.style.top
+            ? parseInt(fab.style.top, 10) || 24
+            : window.innerHeight - (fab.offsetHeight || 24) - 24;
+        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointerup", onUp);
+      });
+    }
+
+    applyFabPos();
+    initFabDrag();
+
     // ========== FAB: восстановление на YouTube и других SPA ==========
     // YouTube пересоздаёт DOM при навигации и может удалять наш host-элемент
     const fabObserver = new MutationObserver(() => {
@@ -1121,7 +1311,11 @@
     }
 
     // ========== EVENTS ==========
-    fab.onclick = () => openModal();
+    fab.onclick = () => {
+      // после перетаскивания клик не открывает панель
+      if (fabDragged) { fabDragged = false; return; }
+      openModal();
+    };
     modal.querySelector(".vm-close").onclick = () => closeModal();
     // overlay.onclick убран — модалка закрывается только крестиком
 
@@ -1247,11 +1441,11 @@
     })();
 
     // ========== ПРОВЕРКА ОБНОВЛЕНИЙ ==========
-    const CURRENT_VERSION = "6.6.6"; // Мажор.минор.патч — формат для сравнения версий, не меняй его просто так
+    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.6.7"; // берётся из @version шапки
     const UPDATE_URL =
-      "https://raw.githubusercontent.com/Vidrimers/Universal-eblan-marker/refs/heads/master/universal.user.js";
+      "https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js";
     const INSTALL_URL =
-      "https://raw.githubusercontent.com/Vidrimers/Universal-eblan-marker/refs/heads/master/universal.user.js";
+      "https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js";
     const UPDATE_CHECK_KEY = "vm_update_last_check";
     const UPDATE_CHECK_INTERVAL = 24 * 60 * 60 * 1000; // раз в сутки
 
@@ -1811,7 +2005,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `eblan_marker_${DOMAIN}_${Date.now()}.json`;
+      a.download = `universal_marker_${DOMAIN}_${Date.now()}.json`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
       showToast("💾 Сохраните файл...");
@@ -1858,7 +2052,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `eblan_marker_ALL_${Date.now()}.json`;
+      a.download = `universal_marker_ALL_${Date.now()}.json`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
       showToast(`💾 Сохраните файл (${allKeys.length} сайтов)...`);
@@ -1904,7 +2098,7 @@
     // Bug report
     modal.querySelector("#vmReport").onclick = () =>
       window.open(
-        "https://github.com/Vidrimers/Universal-eblan-marker/issues/new?assignees=&labels=bug%2C+needs+triage%2C+universal-marker&template=bug_report.md&title=%5BBUG%5D+%3Cкраткое+описание+проблемы%3E",
+        "https://github.com/Vidrimers/Universal-marker/issues/new?assignees=&labels=bug%2C+needs+triage%2C+universal-marker&template=bug_report.md&title=%5BBUG%5D+%3Cкраткое+описание+проблемы%3E",
         "_blank",
       );
   }

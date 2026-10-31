@@ -1,8 +1,8 @@
-# 💀 Universal Eblan Marker
+# 💀 Universal Marker
 
 Userscript для Tampermonkey — подсвечивает ники и оставляет надписи в профилях на любом сайте. Незаменим на форумах, маркетплейсах и в любых сообществах где нужно помнить кто есть кто.
 
-> Версия: 6.6 | Работает на любом сайте (`*://*/*`)
+> Версия: 6.6.7 | Работает на любом сайте (`*://*/*`)
 
 ---
 
@@ -32,7 +32,7 @@ Userscript для Tampermonkey — подсвечивает ники и оста
 
 **Шаг 2.** Нажми кнопку ниже чтобы установить скрипт:
 
-[![Установить скрипт](https://img.shields.io/badge/Установить-Tampermonkey-green?style=for-the-badge&logo=tampermonkey)](https://raw.githubusercontent.com/Vidrimers/Universal-eblan-marker/refs/heads/master/universal.user.js)
+[![Установить скрипт](https://img.shields.io/badge/Установить-Tampermonkey-green?style=for-the-badge&logo=tampermonkey)](https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js)
 
 > При открытии ссылки Tampermonkey автоматически распознает скрипт и откроет диалог установки. Нажми **«Установить»**.
 
