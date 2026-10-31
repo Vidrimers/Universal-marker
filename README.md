@@ -14,6 +14,7 @@ Tampermonkey userscript — highlights nicknames and shows messages on profiles 
 - [Features](#features)
   - [Nickname highlighting](#nickname-highlighting)
   - [Profile messages](#profile-messages)
+  - [Steam](#steam)
   - [Quick labels](#quick-labels)
   - [Bulk add](#bulk-add)
   - [Search](#search)
@@ -80,6 +81,16 @@ You need to specify the **user ID** (numeric) and the message text. The script a
 **Example:** opening `/seller/beex/1179730` shows the message **SCAMMER**.
 
 ![alt](img/center_message.png)
+
+---
+
+### Steam
+
+On Steam pages (`steamcommunity.com`) the script detects the SteamID64 of the open profile on its own — a quick-add block appears in the panel: a label for the profile and a label for the nickname in one click.
+
+**Renames** — if a marked person changes their Steam nickname, the label automatically moves to the new one (color, text and note are kept), otherwise highlighting would "lose" them.
+
+How it works: once a day the script sends only the list of SteamIDs of your marked nicks to the author's server and gets their current names. Labels, notes and settings are not sent — they stay in Tampermonkey locally.
 
 ---
 
