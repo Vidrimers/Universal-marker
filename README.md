@@ -1,48 +1,50 @@
 # 💀 Universal Marker
 
-Userscript для Tampermonkey — подсвечивает ники и оставляет надписи в профилях на любом сайте. Незаменим на форумах, маркетплейсах и в любых сообществах где нужно помнить кто есть кто.
+[English](README.md) | [Русский](README.ru.md)
 
-> Версия: 6.6.7 | Работает на любом сайте (`*://*/*`)
+Tampermonkey userscript — highlights nicknames and shows messages on profiles on any site. Essential for forums, marketplaces and any community where you need to remember who is who.
 
----
-
-## 📋 Содержание
-
-- [Установка](#установка)
-- [Функции](#функции)
-  - [Подсветка ников](#подсветка-ников)
-  - [Надписи в профилях](#надписи-в-профилях)
-  - [Быстрые метки](#быстрые-метки)
-  - [Массовое добавление](#массовое-добавление)
-  - [Поиск](#поиск)
-  - [Заметки](#заметки)
-  - [Настройки](#настройки)
-  - [Экспорт и импорт](#экспорт-и-импорт)
-  - [Обновления](#обновления)
-- [Хранение данных](#хранение-данных)
+> Version: 6.7.0 | Works on any site (`*://*/*`)
 
 ---
 
-## Установка
+## 📋 Contents
 
-**Шаг 1.** Установи расширение Tampermonkey для своего браузера:
+- [Installation](#installation)
+- [Features](#features)
+  - [Nickname highlighting](#nickname-highlighting)
+  - [Profile messages](#profile-messages)
+  - [Quick labels](#quick-labels)
+  - [Bulk add](#bulk-add)
+  - [Search](#search)
+  - [Notes](#notes)
+  - [Settings](#settings)
+  - [Export and import](#export-and-import)
+  - [Updates](#updates)
+- [Data storage](#data-storage)
+
+---
+
+## Installation
+
+**Step 1.** Install the Tampermonkey extension for your browser:
 
 - [Chrome / Edge / Opera](https://www.tampermonkey.net/)
 - [Firefox](https://www.tampermonkey.net/?browser=firefox)
 
-**Шаг 2.** Нажми кнопку ниже чтобы установить скрипт:
+**Step 2.** Click the button below to install the script:
 
-[![Установить скрипт](https://img.shields.io/badge/Установить-Tampermonkey-green?style=for-the-badge&logo=tampermonkey)](https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js)
+[![Install script](https://img.shields.io/badge/Install-Tampermonkey-green?style=for-the-badge&logo=tampermonkey)](https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js)
 
-> При открытии ссылки Tampermonkey автоматически распознает скрипт и откроет диалог установки. Нажми **«Установить»**.
+> When you open the link, Tampermonkey recognizes the script and opens the install dialog. Click **"Install"**.
 
 ![alt](img/install.png)
 
 ---
 
-## Функции
+## Features
 
-После установки на любой странице появится маленькая кнопка 💀 в левом нижнем углу. Нажми на неё чтобы открыть панель управления.
+After installation a small 💀 button appears in the bottom left corner of any page. Click it to open the control panel.
 
 ![alt](img/fab.png)
 
@@ -50,19 +52,19 @@ Userscript для Tampermonkey — подсвечивает ники и оста
 
 ---
 
-### Подсветка ников
+### Nickname highlighting
 
-Вкладка **👤 Ники** — добавь ник пользователя и метку. Скрипт найдёт все упоминания этого ника на странице и подпишет метку рядом цветным текстом.
+The **👤 Nicks** tab — add a user's nickname and a label. The script finds every mention of that nickname on the page and appends your label next to it in color.
 
-**Пример:**
+**Example:**
 
 ```
-beex → скаммер
+beex → scammer
 ```
 
-Результат на странице: `beex` **(скаммер)**
+Result on the page: `beex` **(scammer)**
 
-Для каждого ника можно выбрать **индивидуальный цвет** метки — например красный для токсиков, зелёный для проверенных людей. Цвет по умолчанию берётся из настроек.
+Each nickname can have an **individual label color** — e.g. red for toxic users, green for verified people. The default color comes from settings.
 
 ![alt](img/modal_overview.png)
 
@@ -70,122 +72,123 @@ beex → скаммер
 
 ---
 
-### Надписи в профилях
+### Profile messages
 
-Вкладка **💀 Профили** — при заходе на страницу профиля конкретного пользователя по центру экрана появится большая надпись.
+The **💀 Profiles** tab — when you open a specific user's profile page, a big message appears in the center of the screen.
 
-Нужно указать **ID пользователя** (числовой) и текст надписи. Скрипт автоматически определяет ID из URL по настроенным паттернам.
+You need to specify the **user ID** (numeric) and the message text. The script automatically detects the ID from the URL using the configured patterns.
 
-**Пример:** при открытии `/seller/beex/1179730` появится надпись **СКАММЕР**.
+**Example:** opening `/seller/beex/1179730` shows the message **SCAMMER**.
 
 ![alt](img/center_message.png)
 
 ---
 
-### Быстрые метки
+### Quick labels
 
-Кнопка **▾ Быстрые метки** под строкой добавления — показывает список всех уникальных меток которые ты уже использовал. Кликни на метку чтобы мгновенно вставить её в поле вместе с цветом — не нужно каждый раз печатать одно и то же.
+The **▾ Quick labels** button under the add row — shows a list of all unique labels you have already used. Click a label to instantly fill the field along with the color — no need to type the same thing over and over.
 
 ![alt](img/presets.png)
 
 ---
 
-### Массовое добавление
+### Bulk add
 
-Кнопка **▼ Массовое добавление** — позволяет добавить до 100 ников за раз. Вставь список ников по одному на строку, укажи общую метку и цвет.
+The **▼ Bulk add** button — lets you add up to 100 nicknames at once. Paste a list of nicknames one per line, set a shared label and color.
 
 ![alt](img/bulk_add.png)
 ![alt](img/bulk_add2.png)
 
 ---
 
-### Поиск
+### Search
 
-В каждой вкладке есть строка поиска — фильтрует список мгновенно при вводе. Поиск работает по нику, метке и тексту заметки одновременно. Показывает счётчик найденных записей.
+Each tab has a search bar — it filters the list instantly as you type. Search works across nickname, label and note text at once. Shows a counter of found entries.
 
 ![alt](img/search.png)
 
 ---
 
-### Заметки
+### Notes
 
-У каждого ника есть кнопка заметки:
+Every nickname has a note button:
 
-- **+** (полупрозрачная) — заметки нет, нажми чтобы добавить
-- **✎** (синяя) — заметка есть, нажми чтобы просмотреть или изменить
+- **+** (semi-transparent) — no note yet, click to add
+- **✎** (blue) — a note exists, click to view or edit
 
-Заметка разворачивается прямо под строкой ника — не занимает лишнего места, если не нужна.
+The note expands right under the nickname row — it takes no extra space when not needed.
 
 ![alt](img/note_open.png)
 
 ---
 
-### Настройки
+### Settings
 
-Вкладка **⚙️ Настройки**:
+The **⚙️ Settings** tab:
 
-| Параметр              | Описание                                    |
+| Parameter | Description |
 | --------------------- | ------------------------------------------- |
-| Цвет метки ника       | Цвет по умолчанию для новых ников           |
-| Цвет надписи (центр)  | Цвет текста большой надписи на профиле      |
-| Цвет рамки            | Цвет рамки большой надписи                  |
-| Размер шрифта (центр) | Размер текста надписи, например `42px`      |
-| Показывать всегда     | Надпись на профиле не исчезает сама         |
-| Паттерны URL для ID   | Regex для извлечения ID пользователя из URL |
+| Language | Interface language (English / Русский) |
+| Nick label color | Default color for new nicknames |
+| Message color (center) | Text color of the big profile message |
+| Border color | Border color of the big message |
+| Font size (center) | Message text size, e.g. `42px` |
+| Show always | The profile message never fades on its own |
+| URL patterns for ID | Regex to extract the user ID from the URL |
 
-**Паттерны URL** — если сайт использует нестандартный формат ссылок на профиль, добавь свой паттерн. По умолчанию поддерживаются форматы `/profile/123`, `/member/123`, `?u=123`.
+**URL patterns** — if a site uses a non-standard profile link format, add your own pattern. By default these formats are supported: `/profile/123`, `/member/123`, `?u=123`.
 
-Пример для plati.market: `/seller/[^/]+/(\d+)`
+Example for plati.market: `/seller/[^/]+/(\d+)`
 
 ![alt](img/settings.png)
 
 ---
 
-### Экспорт и импорт
+### Export and import
 
-Данные хранятся отдельно для каждого сайта. Кнопки в нижней части панели:
+Data is stored separately for each site. Buttons are in the **⚙️ Settings** tab:
 
-| Кнопка                 | Действие                                     |
+| Button | Action |
 | ---------------------- | -------------------------------------------- |
-| 📥 Экспорт             | Скачать данные текущего сайта в JSON         |
-| 📤 Импорт              | Загрузить данные для текущего сайта из JSON  |
-| 📥 Экспорт всех сайтов | Скачать данные всех сайтов одним файлом      |
-| 📤 Импорт всех сайтов  | Загрузить данные для всех сайтов из файла    |
-| 🔄 Обновить            | Перезагрузить страницу (применить изменения) |
+| 📥 Export | Download data for all sites as one JSON file |
+| 📤 Import | Load data for all sites from a JSON file |
+| 🔍 Check for updates | Check GitHub for a new script version |
+
+The header buttons: 🔄 reloads the page (apply changes), 🐛 opens the bug report form.
 
 ---
 
-### Обновления
+### Updates
 
-При открытии панели скрипт тихо проверяет наличие новой версии на GitHub (не чаще раза в сутки). Если обновление доступно — появится зелёная плашка:
+When the panel opens, the script quietly checks GitHub for a new version (at most once a day). If an update is available — a green banner appears:
 
 ```
-🆕 Доступно обновление: v6.6 → v6.7   [⬆️ Обновить]
+🆕 Update available: v6.6 → v6.7   [⬆️ Install]
 ```
 
-Нажми **«Обновить»** — Tampermonkey откроет диалог обновления.
+Click **"Install"** — Tampermonkey opens the update dialog.
 
 ![alt](img/update_banner.png)
 
 ---
 
-## Хранение данных
+## Data storage
 
-Данные сохраняются в хранилище Tampermonkey (`GM_storage`) — они **не пропадут** при очистке куков и кеша браузера. Каждый сайт хранит свои данные отдельно.
+Data is saved to Tampermonkey storage (`GM_storage`) — it **survives** cookie and browser cache clears. Each site keeps its data separately.
 
-Структура JSON при экспорте:
+JSON structure on export:
 
 ```json
 {
   "nicknames": {
     "username": {
-      "label": "токсик",
+      "label": "toxic",
       "color": "#ff4444",
-      "note": "грубит в каждом треде"
+      "note": "rude in every thread"
     }
   },
   "profileMessages": {
-    "123456": "СКАММЕР"
+    "123456": "SCAMMER"
   },
   "settings": { ... }
 }

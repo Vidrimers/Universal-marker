@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         Universal Marker
 // @namespace    https://github.com/Vidrimers/Universal-marker
-// @version      6.6.7
-// @description  Универсальная подсветка ников + надписи на профилях. Работает на любом сайте.
+// @version      6.7.0
+// @description  Universal nickname highlighting + profile messages. Works on any site. / Универсальная подсветка ников + надписи на профилях.
 // @author       Vidrimers
 // @match        *://*/*
 // @grant        GM_setValue
@@ -46,7 +46,8 @@
         winPos: null,
         fabPos: null,
         uiOpen: false,
-      },
+        lang: "en",
+      }
     };
     if (!raw) return def;
     const parsed = JSON.parse(raw);
@@ -312,6 +313,230 @@
     );
   }
 
+  // ========== I18N ==========
+  const I18N = {
+    en: {
+      "head.refresh": "Refresh",
+      "head.report": "Bug report",
+      "upd.update": "Update",
+      "upd.install": "⬆️ Install",
+      "upd.available": "🆕 Update available: v{a} → v{b}",
+      "upd.check": "🔍 Check for updates",
+      "upd.checking": "⏳ Checking...",
+      "tab.nicks": "👤 Nicks",
+      "tab.profiles": "💀 Profiles",
+      "tab.settings": "⚙️ Settings",
+      "tab.help": "? Help",
+      "search.nicks": "Search by nick or label...",
+      "search.profiles": "Search by ID or text...",
+      "list.found": "Found: {a} of {b}",
+      "list.total": "Total: {n}",
+      "list.notFound": "Nothing found",
+      "list.empty": "Empty",
+      "ph.nick": "Nick",
+      "ph.label": "Label",
+      "ph.userId": "User ID",
+      "ph.msgText": "Message text",
+      "ph.id": "ID",
+      "ph.text": "Text",
+      "nick.colorTitle": "Label color (keep the default or pick your own)",
+      "presets.btn": "▾ Quick labels",
+      "presets.empty": "No saved labels",
+      "bulk.toggle": "Bulk add",
+      "bulk.labelPh": "Label for all nicks (required)",
+      "bulk.nicksPh": "Nicks — one per line:&#10;Minor748&#10;ElSwanko&#10;suarog3&#10;...",
+      "bulk.addBtn": "➕ Add all",
+      "bulk.addedPart": "added {n}",
+      "bulk.updatedPart": "⚠️ updated {n}",
+      "title.color": "Label color",
+      "title.colorShort": "Color",
+      "steam.auto": "⚡ Steam page — data detected automatically",
+      "steam.profilePh": "Profile label",
+      "steam.addProfile": "➕ Profile",
+      "steam.nickPh": "Label for the nick",
+      "steam.addNick": "➕ Nick",
+      "steam.currentNick": "Current nick: {nick}",
+      "set.lang": "Language",
+      "set.nickColor": "Nick label color",
+      "set.centerColor": "Message color (center)",
+      "set.border": "Border color",
+      "set.fontSize": "Font size (center)",
+      "set.showForever": "Show always",
+      "set.patterns": "URL patterns for ID (one per line)",
+      "set.version": "Script version:",
+      "set.exportImport": "Export / Import",
+      "set.export": "📥 Export",
+      "set.import": "📤 Import",
+      "note.title": "Note",
+      "note.add": "Add a note",
+      "note.ph": "Note about the nick...",
+      "help.title": "How to use",
+      "help.nicksP": '<p><strong style="color:#a3b1ff;">👤 Nicks</strong> — nickname highlighting on the page. Add a nick and a label, and your text will appear next to every mention.</p>',
+      "help.nicksExP": '<p class="vm-code">Example: <strong>beex</strong> → <strong>scammer</strong><br>Result: beex <span style="color:#ff4444;font-weight:bold;">(scammer)</span></p>',
+      "help.profilesP": '<p style="margin-top:12px;"><strong style="color:#a3b1ff;">💀 Profiles</strong> — big center message when opening a profile. Set an ID and the text.</p>',
+      "help.profilesExP": '<p class="vm-code">Example: ID <strong>1179730</strong> → <strong>SCAMMER</strong><br>Opening /seller/beex/1179730 shows the message</p>',
+      "help.patternsP": '<p style="margin-top:12px;"><strong style="color:#a3b1ff;">⚙️ URL patterns</strong> — regex to extract the ID.<br>If the pattern has several groups — the last one is used.<br>For plati.market: <code style="background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:4px;">/seller/[^/]+/(\\d+)</code></p>',
+      "help.exportP": '<p style="margin-top:12px;"><strong style="color:#a3b1ff;">📥📤 Export/Import</strong> — backup of all sites in one file.</p>',
+      "help.storageP": '<p style="margin-top:8px;color:#666;font-size:11px;">Data is stored in Tampermonkey (GM_storage), it survives cookie clears.</p>',
+      "donate": "Support the project",
+      "toast.needProfileLabel": "Enter a profile label",
+      "toast.profileUpdated": "Profile updated",
+      "toast.profileAdded": "Profile added",
+      "toast.profileAddedOk": "✓ Profile added",
+      "toast.nickUnavailable": "Nick unavailable",
+      "toast.needNickLabel": "Enter a label for the nick",
+      "toast.labelUpdated": '⚠️ Label "{nick}" updated',
+      "toast.nickAddedNamed": '✓ Nick "{nick}" added',
+      "toast.nickAdded": "✓ Nick added",
+      "toast.fillBoth": "Fill in both fields",
+      "toast.saved": "✓ Changed",
+      "toast.noteSaved": "✓ Note saved",
+      "toast.noteDeleted": "✓ Note deleted",
+      "toast.deleted": "Deleted",
+      "toast.needBulkLabel": "Enter a label for the nicks",
+      "toast.bulkEmpty": "Nick list is empty",
+      "toast.bulkMax": "Max {n} nicks at once",
+      "toast.settingsSaved": "✓ Settings saved",
+      "toast.exportFile": "💾 Save the file ({n} sites)...",
+      "toast.exportFile.one": "💾 Save the file ({n} site)...",
+      "toast.imported": "✓ Imported {n} sites! Reload the page.",
+      "toast.imported.one": "✓ Imported {n} site! Reload the page.",
+      "toast.errorPrefix": "Error: ",
+      "toast.upToDate": "✓ No updates, version is current"
+    },
+    ru: {
+      "head.refresh": "Обновить",
+      "head.report": "Багрепорт",
+      "upd.update": "Обновить",
+      "upd.install": "⬆️ Установить",
+      "upd.available": "🆕 Доступно обновление: v{a} → v{b}",
+      "upd.check": "🔍 Проверить обновления",
+      "upd.checking": "⏳ Проверяем...",
+      "tab.nicks": "👤 Ники",
+      "tab.profiles": "💀 Профили",
+      "tab.settings": "⚙️ Настройки",
+      "tab.help": "? Помощь",
+      "search.nicks": "Поиск по нику или метке...",
+      "search.profiles": "Поиск по ID или тексту...",
+      "list.found": "Найдено: {a} из {b}",
+      "list.total": "Всего: {n}",
+      "list.notFound": "Ничего не найдено",
+      "list.empty": "Пусто",
+      "ph.nick": "Ник",
+      "ph.label": "Метка",
+      "ph.userId": "ID пользователя",
+      "ph.msgText": "Текст надписи",
+      "ph.id": "ID",
+      "ph.text": "Текст",
+      "nick.colorTitle": "Цвет метки (оставь дефолтный или выбери свой)",
+      "presets.btn": "▾ Быстрые метки",
+      "presets.empty": "Нет сохранённых меток",
+      "bulk.toggle": "Массовое добавление",
+      "bulk.labelPh": "Метка для всех ников (обязательно)",
+      "bulk.nicksPh": "Ники — по одному на строку:&#10;Minor748&#10;ElSwanko&#10;suarog3&#10;...",
+      "bulk.addBtn": "➕ Добавить всех",
+      "bulk.addedPart": "добавлено {n}",
+      "bulk.updatedPart": "⚠️ обновлено {n}",
+      "title.color": "Цвет метки",
+      "title.colorShort": "Цвет",
+      "steam.auto": "⚡ Страница Steam — данные определены автоматически",
+      "steam.profilePh": "Метка для профиля",
+      "steam.addProfile": "➕ Профиль",
+      "steam.nickPh": "Метка для ника",
+      "steam.addNick": "➕ Ник",
+      "steam.currentNick": "Текущий ник: {nick}",
+      "set.lang": "Язык",
+      "set.nickColor": "Цвет метки ника",
+      "set.centerColor": "Цвет надписи (центр)",
+      "set.border": "Цвет рамки",
+      "set.fontSize": "Размер шрифта (центр)",
+      "set.showForever": "Показывать всегда",
+      "set.patterns": "Паттерны URL для ID (по одному на строку)",
+      "set.version": "Версия скрипта:",
+      "set.exportImport": "Экспорт / Импорт",
+      "set.export": "📥 Экспорт",
+      "set.import": "📤 Импорт",
+      "note.title": "Заметка",
+      "note.add": "Добавить заметку",
+      "note.ph": "Заметка о нике...",
+      "help.title": "Как пользоваться",
+      "help.nicksP": '<p><strong style="color:#a3b1ff;">👤 Ники</strong> — подсветка ников на странице. Добавь ник и метку, и рядом с каждым упоминанием появится твой текст.</p>',
+      "help.nicksExP": '<p class="vm-code">Пример: <strong>beex</strong> → <strong>scammer</strong><br>Результат: beex <span style="color:#ff4444;font-weight:bold;">(scammer)</span></p>',
+      "help.profilesP": '<p style="margin-top:12px;"><strong style="color:#a3b1ff;">💀 Профили</strong> — большая надпись по центру при заходе на профиль. Укажи ID и текст.</p>',
+      "help.profilesExP": '<p class="vm-code">Пример: ID <strong>1179730</strong> → <strong>ЕБЛАН</strong><br>При открытии /seller/beex/1179730 появится надпись</p>',
+      "help.patternsP": '<p style="margin-top:12px;"><strong style="color:#a3b1ff;">⚙️ Паттерны URL</strong> — regex для извлечения ID.<br>Если в паттерне несколько групп — берётся последняя.<br>Для plati.market: <code style="background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:4px;">/seller/[^/]+/(\\d+)</code></p>',
+      "help.exportP": '<p style="margin-top:12px;"><strong style="color:#a3b1ff;">📥📤 Экспорт/Импорт</strong> — бэкап всех сайтов одним файлом.</p>',
+      "help.storageP": '<p style="margin-top:8px;color:#666;font-size:11px;">Данные в Tampermonkey (GM_storage), не пропадут при очистке кук.</p>',
+      "donate": "Поддержать проект",
+      "toast.needProfileLabel": "Укажи метку для профиля",
+      "toast.profileUpdated": "Профиль обновлён",
+      "toast.profileAdded": "Профиль добавлен",
+      "toast.profileAddedOk": "✓ Профиль добавлен",
+      "toast.nickUnavailable": "Ник недоступен",
+      "toast.needNickLabel": "Укажи метку для ника",
+      "toast.labelUpdated": '⚠️ Метка "{nick}" обновлена',
+      "toast.nickAddedNamed": '✓ Ник "{nick}" добавлен',
+      "toast.nickAdded": "✓ Ник добавлен",
+      "toast.fillBoth": "Заполните оба поля",
+      "toast.saved": "✓ Изменено",
+      "toast.noteSaved": "✓ Заметка сохранена",
+      "toast.noteDeleted": "✓ Заметка удалена",
+      "toast.deleted": "Удалено",
+      "toast.needBulkLabel": "Укажите метку для ников",
+      "toast.bulkEmpty": "Список ников пуст",
+      "toast.bulkMax": "Максимум {n} ников за раз",
+      "toast.settingsSaved": "✓ Настройки сохранены",
+      "toast.exportFile": "💾 Сохраните файл ({n} сайтов)...",
+      "toast.exportFile.one": "💾 Сохраните файл ({n} сайт)...",
+      "toast.exportFile.few": "💾 Сохраните файл ({n} сайта)...",
+      "toast.imported": "✓ Импортировано {n} сайтов! Обновите страницу.",
+      "toast.imported.one": "✓ Импортировано {n} сайт! Обновите страницу.",
+      "toast.imported.few": "✓ Импортировано {n} сайта! Обновите страницу.",
+      "toast.errorPrefix": "Ошибка: ",
+      "toast.upToDate": "✓ Обновлений нет, версия актуальна"
+    }
+  };
+
+  function uiLang() {
+    return DATA.settings && DATA.settings.lang === "ru" ? "ru" : "en";
+  }
+
+  function pluralCat(lang, n) {
+    if (lang === "ru") {
+      if (n % 10 === 1 && n % 100 !== 11) return "one";
+      if (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) return "few";
+      return "many";
+    }
+    return n === 1 ? "one" : "other";
+  }
+
+  function t(key, params) {
+    const lang = uiLang();
+    let s = I18N[lang] && I18N[lang][key] != null ? I18N[lang][key] : I18N.en[key] != null ? I18N.en[key] : key;
+    const n = params && (params.count != null ? params.count : params.n);
+    if (n != null) {
+      const alt = I18N[lang] && I18N[lang][key + "." + pluralCat(lang, n)];
+      if (alt != null) s = alt;
+      s = s.split("{n}").join(String(n));
+    }
+    if (params) {
+      for (const k in params) s = s.split("{" + k + "}").join(String(params[k]));
+    }
+    return s;
+  }
+
+  // ========== UI REBUILD (смена языка пересобирает панель) ==========
+  let uiHost = null;
+  let uiFabObserver = null;
+  let uiResizeHandler = null;
+
+  function rebuildUI() {
+    if (uiFabObserver) { uiFabObserver.disconnect(); uiFabObserver = null; }
+    if (uiResizeHandler) { window.removeEventListener("resize", uiResizeHandler); uiResizeHandler = null; }
+    if (uiHost) { uiHost.remove(); uiHost = null; }
+    createUI();
+  }
+
   // ========== SHADOW DOM UI ==========
   // Вся модалка живёт внутри Shadow DOM — CSS сайта не может туда пролезть
 
@@ -323,6 +548,7 @@
     host.style.cssText =
       "all: initial; position: fixed; inset: 0; z-index: 2147483647; pointer-events: none;";
     document.documentElement.appendChild(host);
+    uiHost = host;
 
     const shadow = host.attachShadow({ mode: "open" });
 
@@ -507,6 +733,8 @@
             }
             .vm-input:focus { border-color: rgba(102,126,234,0.5); }
             .vm-input::placeholder { color: #555; }
+            select.vm-input { padding: 6px 10px; width: auto; cursor: pointer; }
+            select.vm-input option { background: #16213e; color: #fff; }
 
             .vm-btn {
                 padding: 10px 18px;
@@ -976,12 +1204,12 @@
     modal.innerHTML = `
     <div id="vmUpdateBanner" class="vm-update-banner" style="display:none;">
     <span id="vmUpdateText"></span>
-    <button id="vmUpdateBtn" class="vm-update-btn">Обновить</button>
+    <button id="vmUpdateBtn" class="vm-update-btn">${t("upd.update")}</button>
   </div>
             <div class="vm-header">
                 <div class="vm-head-actions">
-                    <button class="vm-head-btn" id="vmRefresh" title="Обновить">🔄</button>
-                    <button class="vm-head-btn" id="vmReport" title="Багрепорт">🐛</button>
+                    <button class="vm-head-btn" id="vmRefresh" title="${t("head.refresh")}">🔄</button>
+                    <button class="vm-head-btn" id="vmReport" title="${t("head.report")}">🐛</button>
                     <button class="vm-close">&times;</button>
                 </div>
                 <h2>💀 Universal Marker <span class="vm-domain">${escapeHtml(DOMAIN)}</span></h2>
@@ -989,77 +1217,77 @@
 
             <div id="vmUpdateBanner" style="display:none;" class="vm-update-banner">
                 <span id="vmUpdateText"></span>
-                <button class="vm-update-btn" id="vmUpdateBtn">⬆️ Установить</button>
+                <button class="vm-update-btn" id="vmUpdateBtn">${t("upd.install")}</button>
             </div>
 
             <div class="vm-tabs">
-                <button class="vm-tab active" data-tab="nicks">👤 Ники</button>
-                <button class="vm-tab" data-tab="profiles">💀 Профили</button>
-                <button class="vm-tab" data-tab="settings">⚙️ Настройки</button>
-                <button class="vm-tab" data-tab="help">? Помощь</button>
+                <button class="vm-tab active" data-tab="nicks">${t("tab.nicks")}</button>
+                <button class="vm-tab" data-tab="profiles">${t("tab.profiles")}</button>
+                <button class="vm-tab" data-tab="settings">${t("tab.settings")}</button>
+                <button class="vm-tab" data-tab="help">${t("tab.help")}</button>
             </div>
 
             <div class="vm-tab-content active" data-tab="nicks">
                 <div class="vm-search-wrap">
-                    <input class="vm-search" id="vmNickSearch" placeholder="Поиск по нику или метке...">
+                    <input class="vm-search" id="vmNickSearch" placeholder="${t("search.nicks")}">
                     <button class="vm-search-clear" id="vmNickSearchClear">✕</button>
                 </div>
                 <div class="vm-search-count" id="vmNickSearchCount"></div>
                 <div class="vm-list" id="vmNickList"></div>
                 <div class="vm-add-row-color">
-                    <input class="vm-input" id="vmNewNick" placeholder="Ник">
-                    <input class="vm-input" id="vmNewLabel" placeholder="Метка">
-                    <input type="color" class="vm-color-pick" id="vmNewNickColor" title="Цвет метки (оставь дефолтный или выбери свой)">
+                    <input class="vm-input" id="vmNewNick" placeholder="${t("ph.nick")}">
+                    <input class="vm-input" id="vmNewLabel" placeholder="${t("ph.label")}">
+                    <input type="color" class="vm-color-pick" id="vmNewNickColor" title="${t("nick.colorTitle")}">
                     <button class="vm-btn vm-btn-primary" id="vmAddNick">+</button>
                 </div>
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-top:6px;">
                     <div class="vm-presets-wrap">
-                        <button class="vm-presets-btn" id="vmPresetsBtn">▾ Быстрые метки</button>
+                        <button class="vm-presets-btn" id="vmPresetsBtn">${t("presets.btn")}</button>
                         <div class="vm-presets-list" id="vmPresetsList"></div>
                     </div>
-                    <button class="vm-bulk-toggle" id="vmBulkToggle">▼ Массовое добавление</button>
+                    <button class="vm-bulk-toggle" id="vmBulkToggle">▼ ${t("bulk.toggle")}</button>
                 </div>
                 <div class="vm-bulk-section" id="vmBulkSection">
                     <div class="vm-bulk-row">
-                        <input class="vm-input" id="vmBulkLabel" placeholder="Метка для всех ников (обязательно)">
-                        <input type="color" class="vm-color-pick" id="vmBulkColor" title="Цвет метки">
+                        <input class="vm-input" id="vmBulkLabel" placeholder="${t("bulk.labelPh")}">
+                        <input type="color" class="vm-color-pick" id="vmBulkColor" title="${t("title.color")}">
                     </div>
-                    <textarea class="vm-input" id="vmBulkNicks" placeholder="Ники — по одному на строку:&#10;Minor748&#10;ElSwanko&#10;suarog3&#10;..." rows="6"></textarea>
+                    <textarea class="vm-input" id="vmBulkNicks" placeholder="${t("bulk.nicksPh")}" rows="6"></textarea>
                     <div class="vm-bulk-counter" id="vmBulkCounter">0 / 100</div>
-                    <button class="vm-btn vm-btn-primary" id="vmBulkAdd">➕ Добавить всех</button>
+                    <button class="vm-btn vm-btn-primary" id="vmBulkAdd">${t("bulk.addBtn")}</button>
                 </div>
             </div>
 
             <div class="vm-tab-content" data-tab="profiles">
                 <div class="vm-search-wrap">
-                    <input class="vm-search" id="vmProfSearch" placeholder="Поиск по ID или тексту...">
+                    <input class="vm-search" id="vmProfSearch" placeholder="${t("search.profiles")}">
                     <button class="vm-search-clear" id="vmProfSearchClear">✕</button>
                 </div>
                 <div class="vm-search-count" id="vmProfSearchCount"></div>
                 <div class="vm-list" id="vmProfileList"></div>
                 <div class="vm-add-row">
-                    <input class="vm-input" id="vmNewProfId" placeholder="ID пользователя">
-                    <input class="vm-input" id="vmNewProfText" placeholder="Текст надписи">
+                    <input class="vm-input" id="vmNewProfId" placeholder="${t("ph.userId")}">
+                    <input class="vm-input" id="vmNewProfText" placeholder="${t("ph.msgText")}">
                     <button class="vm-btn vm-btn-primary" id="vmAddProf">+</button>
                 </div>
                 <div class="vm-presets-wrap" style="margin-top:6px;">
-                    <button class="vm-presets-btn" id="vmProfPresetsBtn">▾ Быстрые метки</button>
+                    <button class="vm-presets-btn" id="vmProfPresetsBtn">${t("presets.btn")}</button>
                     <div class="vm-presets-list" id="vmProfPresetsList"></div>
                 </div>
                 <div id="vmSteamQuickAdd" style="display:none;margin-top:8px;">
                     <div style="padding:10px 12px;background:rgba(23,111,158,0.12);border:1px solid rgba(23,111,158,0.3);border-radius:10px;">
-                        <div style="font-size:12px;color:#5dade2;margin-bottom:8px;">⚡ Страница Steam — данные определены автоматически</div>
+                        <div style="font-size:12px;color:#5dade2;margin-bottom:8px;">${t("steam.auto")}</div>
                         <div style="font-size:11px;color:#666;margin-bottom:8px;" id="vmSteamDetectedId"></div>
                         <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                            <input class="vm-input" id="vmSteamQuickText" placeholder="Метка для профиля" style="flex:1;">
-                            <button class="vm-btn vm-btn-primary" id="vmSteamQuickBtn">➕ Профиль</button>
+                            <input class="vm-input" id="vmSteamQuickText" placeholder="${t("steam.profilePh")}" style="flex:1;">
+                            <button class="vm-btn vm-btn-primary" id="vmSteamQuickBtn">${t("steam.addProfile")}</button>
                         </div>
                         <div style="border-top:1px solid rgba(23,111,158,0.2);padding-top:8px;">
                             <div style="font-size:11px;color:#666;margin-bottom:6px;" id="vmSteamNickInfo"></div>
                             <div id="vmSteamNickRow" style="display:none;flex-direction:row;gap:8px;align-items:center;">
-                                <input class="vm-input" id="vmSteamNickLabel" placeholder="Метка для ника" style="flex:1;">
-                                <input type="color" class="vm-color-pick" id="vmSteamNickColor" title="Цвет метки" style="width:36px;height:32px;flex-shrink:0;">
-                                <button class="vm-btn vm-btn-primary" id="vmSteamNickBtn">➕ Ник</button>
+                                <input class="vm-input" id="vmSteamNickLabel" placeholder="${t("steam.nickPh")}" style="flex:1;">
+                                <input type="color" class="vm-color-pick" id="vmSteamNickColor" title="${t("title.color")}" style="width:36px;height:32px;flex-shrink:0;">
+                                <button class="vm-btn vm-btn-primary" id="vmSteamNickBtn">${t("steam.addNick")}</button>
                             </div>
                         </div>
                     </div>
@@ -1068,59 +1296,64 @@
 
             <div class="vm-tab-content" data-tab="settings">
                 <div class="vm-setting-row">
-                    <span class="vm-setting-label">Цвет метки ника</span>
+                    <span class="vm-setting-label">${t("set.lang")}</span>
+                    <select class="vm-input" id="vmLang" style="width:120px;flex:unset;">
+                        <option value="en">English</option>
+                        <option value="ru">Русский</option>
+                    </select>
+                </div>
+                <div class="vm-setting-row">
+                    <span class="vm-setting-label">${t("set.nickColor")}</span>
                     <input type="color" class="vm-color-input" id="vmNickColor" value="${DATA.settings.nickColor}">
                 </div>
                 <div class="vm-setting-row">
-                    <span class="vm-setting-label">Цвет надписи (центр)</span>
+                    <span class="vm-setting-label">${t("set.centerColor")}</span>
                     <input type="color" class="vm-color-input" id="vmCenterColor" value="${DATA.settings.centerColor}">
                 </div>
                 <div class="vm-setting-row">
-                    <span class="vm-setting-label">Цвет рамки</span>
+                    <span class="vm-setting-label">${t("set.border")}</span>
                     <input type="color" class="vm-color-input" id="vmCenterBorder" value="${DATA.settings.centerBorder}">
                 </div>
                 <div class="vm-setting-row">
-                    <span class="vm-setting-label">Размер шрифта (центр)</span>
+                    <span class="vm-setting-label">${t("set.fontSize")}</span>
                     <input class="vm-input" id="vmCenterSize" value="${DATA.settings.centerSize}" style="width:80px;flex:unset;">
                 </div>
                 <div class="vm-setting-row">
-                    <span class="vm-setting-label">Показывать всегда</span>
+                    <span class="vm-setting-label">${t("set.showForever")}</span>
                     <input type="checkbox" id="vmShowForever" ${DATA.settings.showForever ? "checked" : ""}>
                 </div>
                 <div class="vm-setting-row" style="border-bottom:none;">
-                    <span class="vm-setting-label">Паттерны URL для ID (по одному на строку)</span>
+                    <span class="vm-setting-label">${t("set.patterns")}</span>
                 </div>
                 <textarea class="vm-input" id="vmPatterns" rows="3" style="resize:vertical;margin-top:6px;">${(DATA.settings.userIdPatterns || []).join("\n")}</textarea>
                 <div class="vm-setting-row" style="border-bottom:none;margin-top:14px;">
-                    <span class="vm-setting-label">Версия скрипта: <strong style="color:#a3b1ff;" id="vmCurrentVersion"></strong></span>
-                    <button class="vm-btn vm-btn-ghost" id="vmCheckUpdate" style="font-size:11px;padding:4px 10px;">🔍 Проверить обновления</button>
+                    <span class="vm-setting-label">${t("set.version")} <strong style="color:#a3b1ff;" id="vmCurrentVersion"></strong></span>
+                    <button class="vm-btn vm-btn-ghost" id="vmCheckUpdate" style="font-size:11px;padding:4px 10px;">${t("upd.check")}</button>
                 </div>
                 <div class="vm-setting-row" style="border-bottom:none;margin-top:14px;">
-                    <span class="vm-setting-label">Экспорт / Импорт</span>
+                    <span class="vm-setting-label">${t("set.exportImport")}</span>
                     <div style="display:flex;gap:6px;">
-                        <button class="vm-btn vm-btn-success" id="vmExportAll">📥 Экспорт</button>
-                        <button class="vm-btn vm-btn-warning" id="vmImportAll">📤 Импорт</button>
+                        <button class="vm-btn vm-btn-success" id="vmExportAll">${t("set.export")}</button>
+                        <button class="vm-btn vm-btn-warning" id="vmImportAll">${t("set.import")}</button>
                     </div>
                 </div>
             </div>
 
             <div class="vm-tab-content" data-tab="help">
                 <div class="vm-help">
-                    <h3>Как пользоваться</h3>
-                    <p><strong style="color:#a3b1ff;">👤 Ники</strong> — подсветка ников на странице. Добавь ник и метку, и рядом с каждым упоминанием появится твой текст.</p>
-                    <p class="vm-code">Пример: <strong>beex</strong> → <strong>scammer</strong><br>Результат: beex <span style="color:#ff4444;font-weight:bold;">(scammer)</span></p>
-                    <p style="margin-top:12px;"><strong style="color:#a3b1ff;">💀 Профили</strong> — большая надпись по центру при заходе на профиль. Укажи ID и текст.</p>
-                    <p class="vm-code">Пример: ID <strong>1179730</strong> → <strong>ЕБЛАН</strong><br>При открытии /seller/beex/1179730 появится надпись</p>
-                    <p style="margin-top:12px;"><strong style="color:#a3b1ff;">⚙️ Паттерны URL</strong> — regex для извлечения ID.<br>
-                    Если в паттерне несколько групп — берётся последняя.<br>
-                    Для plati.market: <code style="background:rgba(0,0,0,0.4);padding:2px 6px;border-radius:4px;">/seller/[^/]+/(\d+)</code></p>
-                    <p style="margin-top:12px;"><strong style="color:#a3b1ff;">📥📤 Экспорт/Импорт</strong> — бэкап всех сайтов одним файлом.</p>
-                    <p style="margin-top:8px;color:#666;font-size:11px;">Данные в Tampermonkey (GM_storage), не пропадут при очистке кук.</p>
+                    <h3>${t("help.title")}</h3>
+                    ${t("help.nicksP")}
+                    ${t("help.nicksExP")}
+                    ${t("help.profilesP")}
+                    ${t("help.profilesExP")}
+                    ${t("help.patternsP")}
+                    ${t("help.exportP")}
+                    ${t("help.storageP")}
                 </div>
             </div>
 
             <div style="margin-top:10px;text-align:center;">
-                <a class="vm-donate-link" href="https://vidrimers.online/donate" target="_blank" rel="noopener">Поддержать проект</a>
+                <a class="vm-donate-link" href="https://vidrimers.online/donate" target="_blank" rel="noopener">${t("donate")}</a>
             </div>
         `;
     shadow.appendChild(modal);
@@ -1204,10 +1437,11 @@
     applyWinPos();
     initDrag();
     // при resize окна браузера — поджимаем позиции, чтобы элементы не остались за краем
-    window.addEventListener("resize", () => {
+    uiResizeHandler = () => {
       if (modal.classList.contains("open")) applyWinPos();
       applyFabPos();
-    });
+    };
+    window.addEventListener("resize", uiResizeHandler);
 
     // ========== DRAG: перетаскивание FAB ==========
     let fabDragged = false; // клик после перетаскивания не открывает панель
@@ -1302,12 +1536,12 @@
 
     // ========== FAB: восстановление на YouTube и других SPA ==========
     // YouTube пересоздаёт DOM при навигации и может удалять наш host-элемент
-    const fabObserver = new MutationObserver(() => {
+    uiFabObserver = new MutationObserver(() => {
       if (!document.documentElement.contains(host)) {
         document.documentElement.appendChild(host);
       }
     });
-    fabObserver.observe(document.documentElement, {
+    uiFabObserver.observe(document.documentElement, {
       childList: true,
       subtree: true,
     });
@@ -1316,14 +1550,14 @@
     function showToast(msg, isError = false) {
       const old = shadow.querySelector(".vm-toast");
       if (old) old.remove();
-      const t = document.createElement("div");
-      t.className = "vm-toast" + (isError ? " error" : "");
-      t.textContent = msg;
-      shadow.appendChild(t);
-      requestAnimationFrame(() => t.classList.add("show"));
+      const el = document.createElement("div");
+      el.className = "vm-toast" + (isError ? " error" : "");
+      el.textContent = msg;
+      shadow.appendChild(el);
+      requestAnimationFrame(() => el.classList.add("show"));
       setTimeout(() => {
-        t.classList.remove("show");
-        setTimeout(() => t.remove(), 300);
+        el.classList.remove("show");
+        setTimeout(() => el.remove(), 300);
       }, 3000);
     }
 
@@ -1411,15 +1645,15 @@
       quickBlock.style.display = "block";
 
       if (currentNick && nickInfo && nickRow && nickColor) {
-        nickInfo.textContent = `Текущий ник: ${currentNick}`;
+        nickInfo.textContent = t("steam.currentNick", { nick: currentNick });
         nickInfo.style.color = "#a3b1ff";
         nickColor.value = DATA.settings.nickColor;
         nickRow.style.display = "flex";
       }
 
       function switchTab(tabName) {
-        modal.querySelectorAll(".vm-tab").forEach((t) => t.classList.remove("active"));
-        modal.querySelectorAll(".vm-tab-content").forEach((t) => t.classList.remove("active"));
+        modal.querySelectorAll(".vm-tab").forEach((el) => el.classList.remove("active"));
+        modal.querySelectorAll(".vm-tab-content").forEach((el) => el.classList.remove("active"));
         modal.querySelector(`.vm-tab[data-tab='${tabName}']`).classList.add("active");
         modal.querySelector(`.vm-tab-content[data-tab='${tabName}']`).classList.add("active");
       }
@@ -1427,22 +1661,22 @@
       // ── Добавить профиль ──
       quickBtn.onclick = () => {
         const text = quickText.value.trim();
-        if (!text) return showToast("Укажи метку для профиля", true);
+        if (!text) return showToast(t("toast.needProfileLabel"), true);
         const exists = !!DATA.profileMessages[steamId64];
         DATA.profileMessages[steamId64] = text;
         saveData(DATA);
         quickText.value = "";
         renderLists();
         switchTab("profiles");
-        showToast(exists ? "Профиль обновлён" : "Профиль добавлен");
+        showToast(exists ? t("toast.profileUpdated") : t("toast.profileAdded"));
       };
 
       // ── Добавить ник (с steamId64 для мониторинга + заметка со ссылкой) ──
       if (nickBtn) {
         nickBtn.onclick = () => {
-          if (!currentNick) return showToast("Ник недоступен", true);
+          if (!currentNick) return showToast(t("toast.nickUnavailable"), true);
           const label = nickLabel.value.trim();
-          if (!label) return showToast("Укажи метку для ника", true);
+          if (!label) return showToast(t("toast.needNickLabel"), true);
           const color = nickColor.value;
           const exists = Object.keys(DATA.nicknames).some(
             (k) => k.toLowerCase() === currentNick.toLowerCase()
@@ -1458,13 +1692,13 @@
           nickLabel.value = "";
           renderLists();
           switchTab("nicks");
-          showToast(exists ? `⚠️ Метка "${currentNick}" обновлена` : `✓ Ник "${currentNick}" добавлен`);
+          showToast(exists ? t("toast.labelUpdated", { nick: currentNick }) : t("toast.nickAddedNamed", { nick: currentNick }));
         };
       }
     })();
 
     // ========== ПРОВЕРКА ОБНОВЛЕНИЙ ==========
-    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.6.7"; // берётся из @version шапки
+    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.7.0"; // берётся из @version шапки
     const UPDATE_URL =
       "https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js";
     const INSTALL_URL =
@@ -1495,7 +1729,7 @@
         const text = modal.querySelector("#vmUpdateText");
         const btn = modal.querySelector("#vmUpdateBtn");
         if (!banner || !text || !btn) return; // защита от null
-        text.textContent = `🆕 Доступно обновление: v${CURRENT_VERSION} → v${remoteVersion}`;
+        text.textContent = t("upd.available", { a: CURRENT_VERSION, b: remoteVersion });
         banner.style.display = "flex";
         btn.onclick = () => window.open(INSTALL_URL, "_blank");
       } catch (e) {
@@ -1510,18 +1744,18 @@
     // Кнопка принудительной проверки
     modal.querySelector("#vmCheckUpdate").onclick = () => {
       const btn = modal.querySelector("#vmCheckUpdate");
-      btn.textContent = "⏳ Проверяем...";
+      btn.textContent = t("upd.checking");
       btn.disabled = true;
       // Сбрасываем кеш чтобы force сработал чисто
       GM_setValue(UPDATE_CHECK_KEY, 0);
       checkForUpdates(true);
       setTimeout(() => {
-        btn.textContent = "🔍 Проверить обновления";
+        btn.textContent = t("upd.check");
         btn.disabled = false;
         // Если плашка не появилась — значит обновлений нет
         const banner = modal.querySelector("#vmUpdateBanner");
         if (banner && banner.style.display === "none") {
-          showToast("✓ Обновлений нет, версия актуальна");
+          showToast(t("toast.upToDate"));
         }
       }, 3000);
     };
@@ -1554,7 +1788,7 @@
       tab.onclick = () => {
         modal
           .querySelectorAll(".vm-tab")
-          .forEach((t) => t.classList.remove("active"));
+          .forEach((el) => el.classList.remove("active"));
         modal
           .querySelectorAll(".vm-tab-content")
           .forEach((c) => c.classList.remove("active"));
@@ -1601,20 +1835,20 @@
       // Счётчик для ников
       const nickCountEl = modal.querySelector("#vmNickSearchCount");
       if (nickQ) {
-        nickCountEl.textContent = `Найдено: ${filteredNicks.length} из ${allNicks.length}`;
+        nickCountEl.textContent = t("list.found", { a: filteredNicks.length, b: allNicks.length });
       } else {
         nickCountEl.textContent = allNicks.length
-          ? `Всего: ${allNicks.length}`
+          ? t("list.total", { n: allNicks.length })
           : "";
       }
 
       // Счётчик для профилей
       const profCountEl = modal.querySelector("#vmProfSearchCount");
       if (profQ) {
-        profCountEl.textContent = `Найдено: ${filteredProfs.length} из ${allProfs.length}`;
+        profCountEl.textContent = t("list.found", { a: filteredProfs.length, b: allProfs.length });
       } else {
         profCountEl.textContent = allProfs.length
-          ? `Всего: ${allProfs.length}`
+          ? t("list.total", { n: allProfs.length })
           : "";
       }
 
@@ -1631,7 +1865,7 @@
                 <div class="vm-list-item-wrap">
                     <div class="vm-list-item" data-nick-row="${escapeHtml(nick)}">
                         <span class="vm-list-item-text">
-                            <span class="vm-nick-color-dot" style="background:${escapeHtml(color)}"></span><strong>${escapeHtml(nick)}</strong><span class="vm-arrow">→</span>${escapeHtml(d.label)}${hasNote ? `<button class="vm-note-dot" data-note-nick="${escapeHtml(nick)}" title="Заметка">✎</button>` : `<button class="vm-note-dot vm-note-add" data-note-nick="${escapeHtml(nick)}" title="Добавить заметку" style="opacity:0.35;">+</button>`}
+                            <span class="vm-nick-color-dot" style="background:${escapeHtml(color)}"></span><strong>${escapeHtml(nick)}</strong><span class="vm-arrow">→</span>${escapeHtml(d.label)}${hasNote ? `<button class="vm-note-dot" data-note-nick="${escapeHtml(nick)}" title="${t("note.title")}">✎</button>` : `<button class="vm-note-dot vm-note-add" data-note-nick="${escapeHtml(nick)}" title="${t("note.add")}" style="opacity:0.35;">+</button>`}
                         </span>
                         <span class="vm-item-actions">
                             <button class="vm-edit-btn" data-nick="${escapeHtml(nick)}" data-label="${escapeHtml(d.label)}" data-color="${escapeHtml(color)}">✎</button>
@@ -1639,14 +1873,14 @@
                         </span>
                     </div>
                     <div class="vm-note-panel" data-note-panel="${escapeHtml(nick)}">
-                        <textarea placeholder="Заметка о нике...">${escapeHtml(d.note || "")}</textarea>
+                        <textarea placeholder="${t("note.ph")}">${escapeHtml(d.note || "")}</textarea>
                         <button class="vm-btn vm-btn-primary vm-note-save" data-save-nick="${escapeHtml(nick)}">✓</button>
                     </div>
                 </div>
             `;
           })
           .join("") ||
-        `<div style="padding:12px;text-align:center;color:#555;">${nickQ ? "Ничего не найдено" : "Пусто"}</div>`;
+        `<div style="padding:12px;text-align:center;color:#555;">${nickQ ? t("list.notFound") : t("list.empty")}</div>`;
 
       profList.innerHTML =
         filteredProfs
@@ -1662,7 +1896,7 @@
             `,
           )
           .join("") ||
-        `<div style="padding:12px;text-align:center;color:#555;">${profQ ? "Ничего не найдено" : "Пусто"}</div>`;
+        `<div style="padding:12px;text-align:center;color:#555;">${profQ ? t("list.notFound") : t("list.empty")}</div>`;
 
       // Nick edit handlers
       nickList.querySelectorAll(".vm-edit-btn").forEach((btn) => {
@@ -1678,9 +1912,9 @@
           editRow.dataset.editingNick = oldNick;
           editRow.style.cssText = "flex-wrap:wrap;gap:6px;";
           editRow.innerHTML = `
-            <input class="vm-input vm-edit-nick" value="${escapeHtml(oldNick)}" placeholder="Ник" style="flex:1;min-width:80px;">
-            <input class="vm-input vm-edit-label" value="${escapeHtml(oldLabel)}" placeholder="Метка" style="flex:1;min-width:80px;">
-            <input type="color" class="vm-color-pick vm-edit-color" value="${escapeHtml(oldColor)}" title="Цвет" style="width:36px;height:32px;flex-shrink:0;">
+            <input class="vm-input vm-edit-nick" value="${escapeHtml(oldNick)}" placeholder="${t("ph.nick")}" style="flex:1;min-width:80px;">
+            <input class="vm-input vm-edit-label" value="${escapeHtml(oldLabel)}" placeholder="${t("ph.label")}" style="flex:1;min-width:80px;">
+            <input type="color" class="vm-color-pick vm-edit-color" value="${escapeHtml(oldColor)}" title="${t("title.colorShort")}" style="width:36px;height:32px;flex-shrink:0;">
             <button class="vm-btn vm-btn-primary vm-save-nick">✓</button>
             <button class="vm-btn vm-btn-ghost vm-cancel-nick">✕</button>
           `;
@@ -1692,7 +1926,7 @@
               .value.trim();
             const newColor = editRow.querySelector(".vm-edit-color").value;
             if (!newNick || !newLabel)
-              return showToast("Заполните оба поля", true);
+              return showToast(t("toast.fillBoth"), true);
             delete DATA.nicknames[oldNick];
             DATA.nicknames[newNick] = {
               label: newLabel,
@@ -1702,7 +1936,7 @@
             saveData(DATA);
             pattern = buildPattern();
             renderLists();
-            showToast("✓ Изменено");
+            showToast(t("toast.saved"));
           };
           editRow.querySelector(".vm-cancel-nick").onclick = () =>
             renderLists();
@@ -1731,7 +1965,7 @@
           DATA.nicknames[nick] = { label: d.label, color: d.color, note };
           saveData(DATA);
           renderLists();
-          showToast(note ? "✓ Заметка сохранена" : "✓ Заметка удалена");
+          showToast(note ? t("toast.noteSaved") : t("toast.noteDeleted"));
         };
       });
 
@@ -1742,8 +1976,8 @@
           const oldLabel = btn.dataset.label;
           btn.closest(".vm-list-item").outerHTML = `
                         <div class="vm-edit-row" data-editing-prof="${escapeHtml(oldId)}">
-                            <input class="vm-input vm-edit-id" value="${escapeHtml(oldId)}" placeholder="ID">
-                            <input class="vm-input vm-edit-text" value="${escapeHtml(oldLabel)}" placeholder="Текст">
+                            <input class="vm-input vm-edit-id" value="${escapeHtml(oldId)}" placeholder="${t("ph.id")}"
+                            <input class="vm-input vm-edit-text" value="${escapeHtml(oldLabel)}" placeholder="${t("ph.text")}"
                             <button class="vm-btn vm-btn-primary vm-save-prof">✓</button>
                             <button class="vm-btn vm-btn-ghost vm-cancel-prof">✕</button>
                         </div>
@@ -1755,12 +1989,12 @@
             const newId = row.querySelector(".vm-edit-id").value.trim();
             const newText = row.querySelector(".vm-edit-text").value.trim();
             if (!newId || !newText)
-              return showToast("Заполните оба поля", true);
+              return showToast(t("toast.fillBoth"), true);
             delete DATA.profileMessages[oldId];
             DATA.profileMessages[newId] = newText;
             saveData(DATA);
             renderLists();
-            showToast("✓ Изменено");
+            showToast(t("toast.saved"));
           };
           row.querySelector(".vm-cancel-prof").onclick = () => renderLists();
         };
@@ -1773,7 +2007,7 @@
           saveData(DATA);
           pattern = buildPattern();
           renderLists();
-          showToast("Удалено");
+          showToast(t("toast.deleted"));
         };
       });
       profList.querySelectorAll(".vm-delete-btn").forEach((btn) => {
@@ -1781,7 +2015,7 @@
           delete DATA.profileMessages[btn.dataset.prof];
           saveData(DATA);
           renderLists();
-          showToast("Удалено");
+          showToast(t("toast.deleted"));
         };
       });
     }
@@ -1795,7 +2029,7 @@
       const nick = modal.querySelector("#vmNewNick").value.trim();
       const label = modal.querySelector("#vmNewLabel").value.trim();
       const color = modal.querySelector("#vmNewNickColor").value;
-      if (!nick || !label) return showToast("Заполните оба поля", true);
+      if (!nick || !label) return showToast(t("toast.fillBoth"), true);
       const exists = Object.keys(DATA.nicknames).some(
         (k) => k.toLowerCase() === nick.toLowerCase(),
       );
@@ -1807,7 +2041,7 @@
       modal.querySelector("#vmNewLabel").value = "";
       // color picker остаётся — удобно добавлять несколько ников с одним цветом
       renderLists();
-      showToast(exists ? `⚠️ Метка "${nick}" обновлена` : "✓ Ник добавлен");
+      showToast(exists ? t("toast.labelUpdated", { nick }) : t("toast.nickAdded"));
     };
 
     // Init bulk color picker
@@ -1827,7 +2061,7 @@
         .sort();
       if (!unique.length) {
         list.innerHTML =
-          '<div style="padding:8px 10px;font-size:12px;color:#555;">Нет сохранённых меток</div>';
+          '<div style="padding:8px 10px;font-size:12px;color:#555;">${t("presets.empty")}</div>';
         return;
       }
       list.innerHTML = unique
@@ -1876,7 +2110,7 @@
         .sort();
       if (!unique.length) {
         list.innerHTML =
-          '<div style="padding:8px 10px;font-size:12px;color:#555;">Нет сохранённых меток</div>';
+          '<div style="padding:8px 10px;font-size:12px;color:#555;">${t("presets.empty")}</div>';
         return;
       }
       list.innerHTML = unique
@@ -1921,9 +2155,7 @@
       const sec = modal.querySelector("#vmBulkSection");
       const btn = modal.querySelector("#vmBulkToggle");
       const isOpen = sec.classList.toggle("open");
-      btn.textContent = isOpen
-        ? "▲ Массовое добавление"
-        : "▼ Массовое добавление";
+      btn.textContent = (isOpen ? "▲ " : "▼ ") + t("bulk.toggle");
     };
 
     // Bulk add counter
@@ -1943,14 +2175,14 @@
     // Bulk add submit
     modal.querySelector("#vmBulkAdd").onclick = () => {
       const label = modal.querySelector("#vmBulkLabel").value.trim();
-      if (!label) return showToast("Укажите метку для ников", true);
+      if (!label) return showToast(t("toast.needBulkLabel"), true);
       const lines = bulkNicksTA.value
         .split("\n")
         .map((l) => l.trim())
         .filter(Boolean);
-      if (!lines.length) return showToast("Список ников пуст", true);
+      if (!lines.length) return showToast(t("toast.bulkEmpty"), true);
       if (lines.length > MAX_BULK)
-        return showToast(`Максимум ${MAX_BULK} ников за раз`, true);
+        return showToast(t("toast.bulkMax", { n: MAX_BULK }), true);
       const bulkColor = modal.querySelector("#vmBulkColor").value;
       let added = 0,
         updated = 0;
@@ -1973,8 +2205,8 @@
       bulkCounter.className = "vm-bulk-counter";
       renderLists();
       const parts = [];
-      if (added) parts.push(`добавлено ${added}`);
-      if (updated) parts.push(`⚠️ обновлено ${updated}`);
+      if (added) parts.push(t("bulk.addedPart", { n: added }));
+      if (updated) parts.push(t("bulk.updatedPart", { n: updated }));
       showToast(`✓ ${parts.join(", ")}`);
     };
 
@@ -1982,13 +2214,13 @@
     modal.querySelector("#vmAddProf").onclick = () => {
       const id = modal.querySelector("#vmNewProfId").value.trim();
       const text = modal.querySelector("#vmNewProfText").value.trim();
-      if (!id || !text) return showToast("Заполните оба поля", true);
+      if (!id || !text) return showToast(t("toast.fillBoth"), true);
       DATA.profileMessages[id] = text;
       saveData(DATA);
       modal.querySelector("#vmNewProfId").value = "";
       modal.querySelector("#vmNewProfText").value = "";
       renderLists();
-      showToast("✓ Профиль добавлен");
+      showToast(t("toast.profileAddedOk"));
     };
 
     // Settings
@@ -2004,7 +2236,7 @@
         .map((s) => s.trim())
         .filter(Boolean);
       saveData(DATA);
-      showToast("✓ Настройки сохранены");
+      showToast(t("toast.settingsSaved"));
     };
 
     modal.querySelector("#vmNickColor").onchange = () => {
@@ -2020,6 +2252,13 @@
     modal.querySelector("#vmCenterSize").onchange = saveSettings;
     modal.querySelector("#vmShowForever").onchange = saveSettings;
     modal.querySelector("#vmPatterns").onblur = saveSettings;
+    const langSelect = modal.querySelector("#vmLang");
+    langSelect.value = uiLang();
+    langSelect.onchange = () => {
+      DATA.settings.lang = langSelect.value === "ru" ? "ru" : "en";
+      saveData(DATA);
+      rebuildUI();
+    };
 
     // Export All Sites
     modal.querySelector("#vmExportAll").onclick = () => {
@@ -2037,7 +2276,7 @@
       a.download = `universal_marker_ALL_${Date.now()}.json`;
       a.click();
       setTimeout(() => URL.revokeObjectURL(url), 5000);
-      showToast(`💾 Сохраните файл (${allKeys.length} сайтов)...`);
+      showToast(t("toast.exportFile", { n: allKeys.length }));
     };
 
     // Import All Sites
@@ -2064,9 +2303,9 @@
               pattern = buildPattern();
               renderLists();
             }
-            showToast(`✓ Импортировано ${count} сайтов! Обновите страницу.`);
+            showToast(t("toast.imported", { n: count }));
           } catch (err) {
-            showToast("Ошибка: " + err.message, true);
+            showToast(t("toast.errorPrefix") + err.message, true);
           }
         };
         reader.readAsText(e.target.files[0]);
