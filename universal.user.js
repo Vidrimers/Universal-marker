@@ -403,8 +403,7 @@
                 top: 0;
                 transform: scale(0.95);
                 pointer-events: auto;
-                width: 520px;
-                max-width: 92vw;
+                width: 460px;
                 max-height: 75vh;
                 overflow-y: auto;
                 background: linear-gradient(160deg, #1a1a2e, #16213e);
@@ -630,7 +629,6 @@
             /* ===== Close btn ===== */
             .vm-close {
                 position: absolute;
-                top: 10px;
                 right: 10px;
                 background: none;
                 border: none;
@@ -1093,13 +1091,11 @@
             </div>
 
             <div class="vm-footer">
-                <button class="vm-btn vm-btn-success" id="vmExport">📥 Экспорт</button>
-                <button class="vm-btn vm-btn-warning" id="vmImport">📤 Импорт</button>
                 <button class="vm-btn vm-btn-ghost" id="vmRefresh">🔄 Обновить</button>
             </div>
             <div class="vm-footer" style="margin-top:8px;">
-                <button class="vm-btn vm-btn-success" id="vmExportAll">📥 Экспорт всего</button>
-                <button class="vm-btn vm-btn-warning" id="vmImportAll">📤 Импорт всего</button>
+                <button class="vm-btn vm-btn-success" id="vmExportAll">📥 Экспорт</button>
+                <button class="vm-btn vm-btn-warning" id="vmImportAll">📤 Импорт</button>
                 <button class="vm-btn vm-btn-report" id="vmReport">🐛 Багрепорт</button>
             </div>
             <div style="margin-top:10px;text-align:center;">
@@ -1997,47 +1993,6 @@
     modal.querySelector("#vmCenterSize").onchange = saveSettings;
     modal.querySelector("#vmShowForever").onchange = saveSettings;
     modal.querySelector("#vmPatterns").onblur = saveSettings;
-
-    // Export
-    modal.querySelector("#vmExport").onclick = () => {
-      const json = JSON.stringify(DATA, null, 2);
-      const blob = new Blob([json], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `universal_marker_${DOMAIN}_${Date.now()}.json`;
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(url), 5000);
-      showToast("💾 Сохраните файл...");
-    };
-
-    // Import
-    modal.querySelector("#vmImport").onclick = () => {
-      const input = document.createElement("input");
-      input.type = "file";
-      input.accept = ".json";
-      input.onchange = (e) => {
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          try {
-            const imported = JSON.parse(ev.target.result);
-            if (imported.nicknames) DATA.nicknames = imported.nicknames;
-            if (imported.profileMessages)
-              DATA.profileMessages = imported.profileMessages;
-            if (imported.settings)
-              Object.assign(DATA.settings, imported.settings);
-            saveData(DATA);
-            pattern = buildPattern();
-            renderLists();
-            showToast("✓ Импорт успешен! Обновите страницу.");
-          } catch (err) {
-            showToast("Ошибка: " + err.message, true);
-          }
-        };
-        reader.readAsText(e.target.files[0]);
-      };
-      input.click();
-    };
 
     // Export All Sites
     modal.querySelector("#vmExportAll").onclick = () => {
