@@ -39,8 +39,6 @@ Tampermonkey userscript — highlights nicknames and shows messages on profiles 
 
 > When you open the link, Tampermonkey recognizes the script and opens the install dialog. Click **"Install"**.
 
-![alt](img/install.png)
-
 ---
 
 ## Features
@@ -168,8 +166,6 @@ When the panel opens, the script quietly checks GitHub for a new version (at mos
 ```
 
 Click **"Install"** — Tampermonkey opens the update dialog.
-
-![alt](img/update_banner.png)
 
 ---
 
