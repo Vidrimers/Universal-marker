@@ -4,7 +4,7 @@
 
 Tampermonkey userscript — highlights nicknames and shows messages on profiles on any site. Essential for forums, marketplaces and any community where you need to remember who is who.
 
-> Version: 6.7.2 | Works on any site (`*://*/*`)
+> Version: 6.7.3 | Works on any site (`*://*/*`)
 
 ---
 
@@ -44,7 +44,7 @@ Tampermonkey userscript — highlights nicknames and shows messages on profiles 
 
 ## Features
 
-After installation a small 💀 button appears in the bottom left corner of any page. Click it to open the control panel.
+After installation a small 💀 button appears in the bottom left corner of any page. Click it to open the control panel. If Duo Helper is also on the page, the FABs magnetically snap to each other (horizontally or vertically); to undock — just drag it away while dragging.
 
 ![alt](img/fab.png)
 

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Universal Marker
 // @namespace    https://github.com/Vidrimers/Universal-marker
-// @version      6.7.2
+// @version      6.7.3
 // @description  Universal nickname highlighting + profile messages. Works on any site. / Универсальная подсветка ников + надписи на профилях.
 // @author       Vidrimers
 // @license      CC BY-NC-ND 4.0
@@ -589,6 +589,8 @@
     if (uiFabObserver) { uiFabObserver.disconnect(); uiFabObserver = null; }
     if (uiResizeHandler) { window.removeEventListener("resize", uiResizeHandler); uiResizeHandler = null; }
     if (uiHost) { uiHost.remove(); uiHost = null; }
+    const staleAnchor = document.querySelector(".vm-fab-anchor");
+    if (staleAnchor) staleAnchor.remove();
     createUI();
   }
 
@@ -1248,6 +1250,51 @@
     fab.title = "Universal Marker";
     shadow.appendChild(fab);
 
+    // Якорь FAB в DOM страницы: для магнитной стыковки с FAB другого скрипта.
+    // Свой FAB в Shadow DOM другому скрипту не виден — зеркалим позицию сюда.
+    const oldAnchor = document.querySelector(".vm-fab-anchor");
+    if (oldAnchor) oldAnchor.remove();
+    const fabAnchor = document.createElement("div");
+    fabAnchor.className = "vm-fab-anchor";
+    fabAnchor.setAttribute("aria-hidden", "true");
+    fabAnchor.style.cssText =
+      "position:fixed;left:0;top:0;width:0;height:0;pointer-events:none;opacity:0;z-index:-1;";
+    document.documentElement.appendChild(fabAnchor);
+    function syncFabAnchor() {
+      const r = fab.getBoundingClientRect();
+      fabAnchor.style.left = r.left + "px";
+      fabAnchor.style.top = r.top + "px";
+      fabAnchor.style.width = r.width + "px";
+      fabAnchor.style.height = r.height + "px";
+    }
+    // Магнитная стыковка: вертикаль и горизонталь. Чужой FAB виден через его
+    // якорь в DOM страницы; притягиваем только к нему. Отстыковка — увести в сторону.
+    function snapFabToOther(p) {
+      const other = document.querySelector(".dh-fab-anchor");
+      if (!other) return p;
+      const o = other.getBoundingClientRect();
+      if (o.width < 4 || o.height < 4) return p;
+      const w = fab.offsetWidth || 30;
+      const h = fab.offsetHeight || 24;
+      const gap = 8;
+      const radius = 36;
+      const cands = [
+        { x: o.right + gap, y: o.top + (o.height - h) / 2 },           // справа
+        { x: o.left - gap - w, y: o.top + (o.height - h) / 2 },        // слева
+        { x: o.left + (o.width - w) / 2, y: o.bottom + gap },          // снизу
+        { x: o.left + (o.width - w) / 2, y: o.top - gap - h },         // сверху
+      ];
+      let best = null;
+      let bestD = Infinity;
+      for (const c of cands) {
+        const cc = clampFabPos(c.x, c.y);
+        const d = (cc.x - p.x) * (cc.x - p.x) + (cc.y - p.y) * (cc.y - p.y);
+        if (d < bestD) { bestD = d; best = cc; }
+      }
+      if (best && bestD <= radius * radius) return best;
+      return p;
+    }
+
     // ===== Overlay =====
     const overlay = document.createElement("div");
     overlay.className = "vm-overlay";
@@ -1521,6 +1568,7 @@
         fab.style.left = "24px";
         fab.style.top = "auto";
         fab.style.bottom = "24px";
+        syncFabAnchor();
         return;
       }
       const x = Math.round((saved.xPct / 100) * window.innerWidth);
@@ -1529,6 +1577,7 @@
       fab.style.left = p.x + "px";
       fab.style.top = p.y + "px";
       fab.style.bottom = "auto";
+      syncFabAnchor();
     }
 
     function saveFabPos() {
@@ -1554,10 +1603,12 @@
         const dx = e.clientX - startX;
         const dy = e.clientY - startY;
         if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
-        const p = clampFabPos(origX + dx, origY + dy);
+        let p = clampFabPos(origX + dx, origY + dy);
+        p = snapFabToOther(p);
         fab.style.left = p.x + "px";
         fab.style.top = p.y + "px";
         fab.style.bottom = "auto";
+        syncFabAnchor();
       };
 
       const onUp = () => {
@@ -1565,6 +1616,7 @@
         dragging = false;
         if (moved) {
           saveFabPos();
+          syncFabAnchor();
           fabDragged = true;
           // страховка: если click после перетаскивания не пришёл — сбрасываем флаг
           setTimeout(() => { fabDragged = false; }, 500);
@@ -1596,6 +1648,9 @@
     uiFabObserver = new MutationObserver(() => {
       if (!document.documentElement.contains(host)) {
         document.documentElement.appendChild(host);
+      }
+      if (!document.documentElement.contains(fabAnchor)) {
+        document.documentElement.appendChild(fabAnchor);
       }
     });
     uiFabObserver.observe(document.documentElement, {
@@ -1755,7 +1810,7 @@
     })();
 
     // ========== ПРОВЕРКА ОБНОВЛЕНИЙ ==========
-    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.7.2"; // берётся из @version шапки
+    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.7.3"; // берётся из @version шапки
     const UPDATE_URL =
       "https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js";
     const INSTALL_URL =
