@@ -4,7 +4,7 @@
 
 Tampermonkey userscript — highlights nicknames and shows messages on profiles on any site. Essential for forums, marketplaces and any community where you need to remember who is who.
 
-> Version: 6.7.3 | Works on any site (`*://*/*`)
+> Version: 6.8.0 | Works on any site (`*://*/*`)
 
 ---
 

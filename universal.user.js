@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Universal Marker
 // @namespace    https://github.com/Vidrimers/Universal-marker
-// @version      6.7.3
+// @version      6.8.0
 // @description  Universal nickname highlighting + profile messages. Works on any site. / Универсальная подсветка ников + надписи на профилях.
 // @author       Vidrimers
 // @license      CC BY-NC-ND 4.0
@@ -66,14 +66,9 @@
 
   // Получить объект ника (с fallback для старых данных)
   function getNickData(nick) {
-    const low = nick.toLowerCase();
-    for (const [k, v] of Object.entries(DATA.nicknames)) {
-      if (k.toLowerCase() === low) {
-        if (typeof v === "string") return { label: v, color: null, note: "" };
-        return v;
-      }
-    }
-    return null;
+    const v = Object.entries(DATA.nicknames).find(([k]) => k === nick)?.[1];
+    if (v === undefined) return null;
+    return typeof v === "string" ? { label: v, color: null, note: "" } : v;
   }
 
   function saveData(data) {
@@ -154,7 +149,7 @@
       (k) =>
         `(?<![\\p{L}\\p{N}_])${k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}_])`,
     );
-    return new RegExp(escaped.join("|"), "giu");
+    return new RegExp(escaped.join("|"), "gu");
   }
 
   let pattern = buildPattern();
@@ -262,9 +257,8 @@
     const text = node.textContent;
     if (!text.trim()) return;
 
-    const lower = text.toLowerCase();
     const hasMatch = Object.keys(DATA.nicknames).some((k) =>
-      lower.includes(k.toLowerCase()),
+      text.includes(k),
     );
     if (!hasMatch) return;
 
@@ -1791,7 +1785,7 @@
           if (!label) return showToast(t("toast.needNickLabel"), true);
           const color = nickColor.value;
           const exists = Object.keys(DATA.nicknames).some(
-            (k) => k.toLowerCase() === currentNick.toLowerCase()
+            (k) => k === currentNick
           );
           const oldNote = exists ? ((getNickData(currentNick) || {}).note || "") : "";
           // Если в заметке ещё нет ссылки — добавляем
@@ -1810,7 +1804,7 @@
     })();
 
     // ========== ПРОВЕРКА ОБНОВЛЕНИЙ ==========
-    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.7.3"; // берётся из @version шапки
+    const CURRENT_VERSION = (typeof GM_info !== "undefined" && GM_info.script && GM_info.script.version) || "6.8.0"; // берётся из @version шапки
     const UPDATE_URL =
       "https://raw.githubusercontent.com/Vidrimers/Universal-marker/refs/heads/master/universal.user.js";
     const INSTALL_URL =
@@ -2143,7 +2137,7 @@
       const color = modal.querySelector("#vmNewNickColor").value;
       if (!nick || !label) return showToast(t("toast.fillBoth"), true);
       const exists = Object.keys(DATA.nicknames).some(
-        (k) => k.toLowerCase() === nick.toLowerCase(),
+        (k) => k === nick,
       );
       const oldNote = exists ? (getNickData(nick) || {}).note || "" : "";
       DATA.nicknames[nick] = { label, color, note: oldNote };
@@ -2300,7 +2294,7 @@
         updated = 0;
       for (const nick of lines) {
         const exists = Object.keys(DATA.nicknames).some(
-          (k) => k.toLowerCase() === nick.toLowerCase(),
+          (k) => k === nick,
         );
         if (exists) {
           updated++;
